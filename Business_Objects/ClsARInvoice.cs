@@ -308,6 +308,7 @@ namespace EInvoice.Business_Objects
         }
         #endregion
 
+
         public string GetInvoiceData(string DocEntry, string TransType)
         {
             DataTable dt = clsModule.objaddon.objglobalmethods.GetmultipleValue(@"SELECT ""U_SerConfig"" FROM ""@EICON""");
