@@ -1288,6 +1288,7 @@ namespace EInvoice.Business_Objects
                                 GetXML(DocEntry, TransType, Accesstkn,Xmlpath,ref datatable);
                                 if (datatable.Rows.Count == 0)
                                 {
+
                                   
                                     GetPDFA3(DocEntry, TransType, FilePDFA);
 
