@@ -1007,7 +1007,8 @@ namespace EInvoice.Common
                     foreach (string path in PathDOCList)
                     {
                         string FileName = path;
-                        int ind = savedoc.IndexOf(Path.GetFileName(FileName));
+                       
+                            int ind = savedoc.IndexOf(Path.GetFileName(FileName));
                         if (File.Exists(FileName)&&ind==-1)
                         {
                             oATT.Lines.Add();

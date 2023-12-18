@@ -378,8 +378,8 @@ namespace EInvoice.Business_Objects
                         OptionBtn0.Selected = true;
                     }
                 }
+                oForm.PaneLevel = 20;
 
-                
                 strSQL = clsModule.objaddon.objglobalmethods.getSingleValue("Select \"U_CloseInv\" from \"@EICON\" where \"Code\"='01'");
                 if (strSQL == "True")
                 {

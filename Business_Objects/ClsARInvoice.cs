@@ -433,6 +433,47 @@ namespace EInvoice.Business_Objects
 
             return strSQL;
         }
+
+        public string GetDownpayment(string DocEntry, string Transtype)
+        {
+            string maintb = "";
+            string subtb1 = "";
+            switch (Transtype)
+            {
+                case "INV":
+                    maintb = "INV9";
+                    subtb1 = "INV4";
+                    break;
+                case "CRN":
+                    maintb = "RIN9";
+                    subtb1 = "RIN4";
+                    break;
+                case "DPI":
+                    maintb = "DPI9";
+                    subtb1 = "DPI4";
+                    break;
+
+            }
+
+            strSQL = " SELECT  'Advance' AS \"ItemsellerID\", '1' AS \"Quantity\",'EA' AS \"UomCode\", '0' AS \"Gross\",'0' AS \"taxamt\", ";
+            strSQL += " '0' AS \"Linenet\",'Advance' AS \"Dscription\",'Advance' AS \"ItemsellerID\",'Advance' AS \"ItemBuyerID\", 'S' AS \"TaxCat\", ";
+            strSQL += " t2.\"Vat\"  AS \"Taxrate\",'' AS \"Reason\",'' AS \"Reasoncode\",0 AS \"PriceAmt\",0 AS \"DiscAmt\",0 AS \"BaseAmt\", ";
+            strSQL += " t2.\"DrawnSum\"  AS \"DPTaxableAmt\", t2.\"Vat\" AS \"DPTaxAmt\",'386' AS \"DPDoctype\",t3.\"DocNum\" AS \"DPID\", ";
+            strSQL += " t3.\"DocDate\"  AS \"DPIssudt\",t3.\"DocTime\"  AS \"DPIssutime\",t3.\"U_UUIDNo\" AS \"DPUUID\" ";
+            strSQL += " FROM "+ maintb +" t2 ";
+            strSQL += " INNER JOIN ODPI t3 ON t2.\"BaseAbs\" = t3.\"DocEntry\" " ;
+            strSQL += " WHERE t2.\"DocEntry\" = '" + DocEntry +"'";
+
+
+            if (!clsModule.HANA)
+            {
+                strSQL = clsModule.objaddon.objglobalmethods.ChangeHANAtoSql(strSQL);
+            }
+
+            return strSQL;
+        }
+
+
         public enum EinvoiceMethod
         {
             Default = 0,
@@ -633,63 +674,7 @@ namespace EInvoice.Business_Objects
             }
 
         }
-        public DataTable GetEinvoiceStatus(string DocEntry, string TransType)
-        {
-            SAPbobsCOM.Recordset invrecordset;
-            objRs = (SAPbobsCOM.Recordset)clsModule.objaddon.objcompany.GetBusinessObject(SAPbobsCOM.BoObjectTypes.BoRecordset);
-            invrecordset = (SAPbobsCOM.Recordset)clsModule.objaddon.objcompany.GetBusinessObject(SAPbobsCOM.BoObjectTypes.BoRecordset);
-
-            DataTable dataTable = new DataTable();
-            try
-            {
-
-
-                strSQL = @"Select T0.""U_Live"",T0.""U_UATUrl"",T0.""U_LiveUrl"",T0.""U_AuthKey"",T0.""U_SerConfig"",T1.""U_URLType"",T1.""U_URL"", ";
-                strSQL += @"Case when T0.""U_Live""='N' then CONCAT(T0.""U_UATUrl"",T1.""U_URL"") Else CONCAT(T0.""U_LiveUrl"",T1.""U_URL"") End as URL";
-                strSQL += @" from ""@EICON"" T0 join ""@EICON1"" T1 on T0.""Code""=T1.""Code"" where T0.""Code""='01'";
-                strSQL += @" and T1.""U_URLType""='Get E-Invoice' ";
-
-                objRs.DoQuery(strSQL);
-                if (objRs.RecordCount == 0)
-                {
-                    clsModule.objaddon.objapplication.StatusBar.SetText("API is Missing for \"Get E-Invoice\". Please update in E-invoice Configuration... ", SAPbouiCOM.BoMessageTime.bmt_Long, SAPbouiCOM.BoStatusBarMessageType.smt_Error);
-                    return dataTable;
-                }
-                strSQL = GetInvoiceData(DocEntry, TransType);
-                invrecordset.DoQuery(strSQL);
-                if (invrecordset.RecordCount > 0)
-                {
-                    string Cleartype = "";
-                    switch (TransType)
-                    {
-                        case "INV":                           
-                            Cleartype = (invrecordset.Fields.Item("DocType").Value.ToString() == "I") ? "INV" : "DBN";                          
-                            break;
-                        case "CRN":                          
-                            Cleartype = "CRN";                           
-                            break;
-                        case "DPI":
-                            Cleartype = "DPI";
-                            break;
-                    }
-                    string url = objRs.Fields.Item("URL").Value.ToString();
-                    url += "?invoiceNumber=" + invrecordset.Fields.Item("DocNum").Value.ToString() + "&invoiceType=" + Cleartype + "&issueDate=" + clsModule.objaddon.objglobalmethods.DateFormat(clsModule.objaddon.objglobalmethods.Getdateformat(invrecordset.Fields.Item("DocDate").Value.ToString()), "dd/MM/yyyy", "yyyy-MM-dd") + "&vat=" + invrecordset.Fields.Item("TaxIdNum").Value.ToString() + "";
-                    Dictionary<string, string> head = new Dictionary<string, string>();
-
-                    string Accesstkn = objRs.Fields.Item("U_AuthKey").Value.ToString();
-                    head.Add("x-cleartax-auth-token", Accesstkn);
-                    head.Add("vat", invrecordset.Fields.Item("TaxIdNum").Value.ToString());
-                    dataTable = Get_API_Response("", url, "GET", headers: head);
-                }
-                return dataTable;
-            }
-            catch (Exception)
-            {
-
-                return dataTable;
-            }
-        }
-
+    
         public bool GetXML(string DocEntry,string TransType,string Accesstkn,string Filename,ref DataTable dt)
         {
             SAPbobsCOM.Recordset invrecordset;
@@ -766,6 +751,12 @@ namespace EInvoice.Business_Objects
                     case "CRN":
                         fileType = (invrecordset.Fields.Item("DocType").Value.ToString() == "I") ? "Item" : "Service";
                         files = $"SELECT \"U_FileNm\" FROM \"@EICON2\" WHERE \"U_DocType\" = 'A/R Credit Memo' AND \"U_TransType\" = '{fileType}'";
+                        endpath = clsModule.objaddon.objglobalmethods.getSingleValue(files);
+
+                        break;
+                    case "DPI":
+                        fileType = (invrecordset.Fields.Item("DocType").Value.ToString() == "I") ? "Item" : "Service";
+                        files = $"SELECT \"U_FileNm\" FROM \"@EICON2\" WHERE \"U_DocType\" = 'A/R Down Payment' AND \"U_TransType\" = '{fileType}'";
                         endpath = clsModule.objaddon.objglobalmethods.getSingleValue(files);
 
                         break;
@@ -867,149 +858,6 @@ namespace EInvoice.Business_Objects
             return true;
         }
 
-
-        public bool PrintEmbedded(string DocEntry, string TransType)
-        {
-            try { 
-            SAPbobsCOM.Recordset invrecordset;
-            objRs = (SAPbobsCOM.Recordset)clsModule.objaddon.objcompany.GetBusinessObject(SAPbobsCOM.BoObjectTypes.BoRecordset);
-            invrecordset = (SAPbobsCOM.Recordset)clsModule.objaddon.objcompany.GetBusinessObject(SAPbobsCOM.BoObjectTypes.BoRecordset);
-            string TypeCode = "";
-                string Cleartype = "";
-
-            strSQL = @"Select T0.""U_Live"",T0.""U_UATUrl"",T0.""U_LiveUrl"",T0.""U_AuthKey"",T0.""U_SerConfig"",T1.""U_URLType"",T1.""U_URL"", ";
-            strSQL += @"Case when T0.""U_Live""='N' then CONCAT(T0.""U_UATUrl"",T1.""U_URL"") Else CONCAT(T0.""U_LiveUrl"",T1.""U_URL"") End as URL,";
-            strSQL += @"T0.""U_DBUser"" ,T0.""U_DBPass"",T0.""U_Cryspath"" ";
-            strSQL += @" from ""@EICON"" T0 join ""@EICON1"" T1 on T0.""Code""=T1.""Code"" where T0.""Code""='01'";
-            strSQL += @" and T1.""U_URLType""='PDF A3' ";
-
-            objRs.DoQuery(strSQL);
-            if (objRs.RecordCount == 0)
-            {
-                clsModule.objaddon.objapplication.StatusBar.SetText("API is Missing for \"PDF A\". Please update in E-invoice Configuration... ", SAPbouiCOM.BoMessageTime.bmt_Long, SAPbouiCOM.BoStatusBarMessageType.smt_Error);
-                return false;
-            }
-            strSQL = GetInvoiceData(DocEntry, TransType);
-            invrecordset.DoQuery(strSQL);
-            if (invrecordset.RecordCount > 0)
-            {
-                switch (TransType)
-                {
-                    case "INV":
-                        TypeCode = invrecordset.Fields.Item("DocType").Value.ToString() == "S" ? "INV1" : "INV2";
-                        break;
-                    case "CRN":
-                        TypeCode = invrecordset.Fields.Item("DocType").Value.ToString() == "S" ? "RIN1" : "RIN2";
-                        break;
-                }
-
-                string Crystalquery = " SELECT COALESCE(D.\"DocCode\",ASSD.\"DocCode\" ) AS \"DocCode\",COALESCE(D.\"DocName\",ASSD.\"DocName\" ) AS \"DocName\" FROM RDFL r " +
-                   " LEFT JOIN prs1 P ON P.\"SeqID\" =r.\"DfltSeq\" " +
-                   " LEFT JOIN RDOC D ON D.\"DocCode\"  =p.\"LaytCode\" AND D.\"TypeCode\" ='" + TypeCode + "' " +
-                   " LEFT JOIN RDOC AssD ON AssD.\"DocCode\"  =r.\"DfltReport\" AND D.\"TypeCode\" ='" + TypeCode + "'" +
-                   " LEFT JOIN OUSR Usr  ON USR.USERID = r.\"UserId\"";
-                Crystalquery += " WHERE Usr.USER_CODE = '" + clsModule.objaddon.objcompany.UserName + "'";
-
-
-                DataTable dtcry = clsModule.objaddon.objglobalmethods.GetmultipleValue(Crystalquery);
-                if (dtcry.Rows.Count == 0)
-                {
-
-                    //  clsModule.objaddon.objapplication.StatusBar.SetText("Kindly Set Default Print in this User("+ clsModule.objaddon.objcompany.UserName + ").... ", SAPbouiCOM.BoMessageTime.bmt_Long, SAPbouiCOM.BoStatusBarMessageType.smt_Error);
-                    // return false;
-                }
-
-
-                string BaseSysPath = Getbasepath();
-                string SysPath = BaseSysPath + invrecordset.Fields.Item("DocNum").Value.ToString() + "_";
-                SysPath += clsModule.objaddon.objglobalmethods.DateFormat(clsModule.objaddon.objglobalmethods.Getdateformat(invrecordset.Fields.Item("DocDate").Value.ToString()), "dd/MM/yyyy", "yyyy-MM-dd");
-
-                clsModule.objaddon.objapplication.StatusBar.SetText("Getting Data from  Crysatl Report. Please Wait...." + DocEntry, SAPbouiCOM.BoMessageTime.bmt_Medium, SAPbouiCOM.BoStatusBarMessageType.smt_Warning);
-
-                string crytalpath = "";
-                string endpath = "";
-                    string files = "";
-                    string fileType = "";
-                switch (TransType)
-                {
-                    case "INV":
-                             fileType = (invrecordset.Fields.Item("DocType").Value.ToString() == "I") ? "Item" : "Service";
-                            Cleartype = (invrecordset.Fields.Item("DocType").Value.ToString() == "I") ? "INV" : "DBN";
-                            files = $"SELECT \"U_FileNm\" FROM \"@EICON2\" WHERE \"U_DocType\" = 'A/R Invoice' AND \"U_TransType\" = '{fileType}'";
-
-                            endpath = clsModule.objaddon.objglobalmethods.getSingleValue(files);
-                                                          
-                        break;
-                    case "CRN":
-                            fileType = (invrecordset.Fields.Item("DocType").Value.ToString() == "I") ? "Item" : "Service";
-                            Cleartype = "CRN";
-                             files = $"SELECT \"U_FileNm\" FROM \"@EICON2\" WHERE \"U_DocType\" = 'A/R Credit Memo' AND \"U_TransType\" = '{fileType}'";
-                            endpath = clsModule.objaddon.objglobalmethods.getSingleValue(files);
-                           
-                            break;
-                }
-                 
-                    crytalpath = objRs.Fields.Item("U_Cryspath").Value.ToString() + endpath + ".rpt";
-                // clsModule.objaddon.objglobalmethods.GetCrystalReportFile(dtcry.Rows[0]["DocCode"].ToString(), crytalpath); 
-
-                string FileName = SysPath + "_PDF.pdf";
-                    clsModule.objaddon.objglobalmethods.Create_RPT_To_PDF(crytalpath, clsModule.objaddon.objcompany.Server,
-                    clsModule.objaddon.objcompany.CompanyDB, objRs.Fields.Item("U_DBUser").Value.ToString(), objRs.Fields.Item("U_DBPass").Value.ToString(), DocEntry, FileName);
-
-                    string FilePDFA = "";
-                if (File.Exists(FileName))
-                {
-                    clsModule.objaddon.objapplication.StatusBar.SetText("Creating PDF A3 . Please Wait...." + DocEntry, SAPbouiCOM.BoMessageTime.bmt_Medium, SAPbouiCOM.BoStatusBarMessageType.smt_Warning);
-
-                    string url = objRs.Fields.Item("URL").Value.ToString();
-                    url += "?invoiceNumber=" + invrecordset.Fields.Item("DocNum").Value.ToString() + "&invoiceType=" + Cleartype + "&issueDate=" + clsModule.objaddon.objglobalmethods.DateFormat(clsModule.objaddon.objglobalmethods.Getdateformat(invrecordset.Fields.Item("DocDate").Value.ToString()), "dd/MM/yyyy", "yyyy-MM-dd") + "&vat=" + invrecordset.Fields.Item("TaxIdNum").Value.ToString() + "";
-
-                    Dictionary<string, string> head = new Dictionary<string, string>();
-                    string Accesstkn = objRs.Fields.Item("U_AuthKey").Value.ToString();
-                    head.Add("x-cleartax-auth-token", Accesstkn);
-                    head.Add("vat", invrecordset.Fields.Item("TaxIdNum").Value.ToString());
-
-                    byte[] pdfBytes = File.ReadAllBytes(FileName);
-                    MultipartFormDataContent formContent = new MultipartFormDataContent();
-                    String base64EncodedPdfFile = "\"\"" + Convert.ToBase64String(pdfBytes) + "\"\"";
-                    formContent.Add(new StringContent(base64EncodedPdfFile), "base64EncodedPdfFile");
-                    var formData1 = new NameValueCollection
-                         {
-                         { "base64EncodedPdfFile", base64EncodedPdfFile },
-                            };
-
-                    FilePDFA = SysPath + "_PDFA.pdf";
-
-                    Get_API_Response("", url, "POST", "multipart/form-data", head, formData1, FilePDFA);
-                }
-
-                clsModule.objaddon.objapplication.StatusBar.SetText("Creating XML. Please Wait...." + DocEntry, SAPbouiCOM.BoMessageTime.bmt_Medium, SAPbouiCOM.BoStatusBarMessageType.smt_Warning);
-
-                string Xml64 = clsModule.objaddon.objglobalmethods.getSingleValue("SELECT Max(CAST(\"U_INVXml\" AS varchar)) from \"@EILOG\"  where \"U_DocEntry\"=" + DocEntry + " AND CAST(\"U_INVXml\" AS Varchar) <>'' and \"U_INVTyp\"='" + Cleartype + "'");
-                string Xmlpath = SysPath + "_XML.XMl";
-                if (!string.IsNullOrEmpty(Xml64))
-                {
-                    clsModule.objaddon.objglobalmethods.Convertbase64toxml(Xml64, Xmlpath);
-                }
-                List<string> PathDOCList = new List<string>();
-
-                PathDOCList.Add(FileName);
-                PathDOCList.Add(FilePDFA);
-                PathDOCList.Add(Xmlpath);
-
-                clsModule.objaddon.objglobalmethods.saveattachment(DocEntry, PathDOCList, Cleartype);
-            }
-
-
-            return true;
-            }
-            catch (Exception ex)
-            {
-
-                return true;
-            }
-        }
-
        
         public bool Generate_Cancel_IRN(EinvoiceMethod Create_Cancel, string DocEntry, string TransType, string Type, ref DataTable datatable,
             bool frommul)
@@ -1021,9 +869,9 @@ namespace EInvoice.Business_Objects
             {
 
 
-                SAPbobsCOM.Recordset invrecordset, Taxrecset;
+                SAPbobsCOM.Recordset invrecordset, DPMrecset;
                 objRs = (SAPbobsCOM.Recordset)clsModule.objaddon.objcompany.GetBusinessObject(SAPbobsCOM.BoObjectTypes.BoRecordset);
-                Taxrecset = (SAPbobsCOM.Recordset)clsModule.objaddon.objcompany.GetBusinessObject(SAPbobsCOM.BoObjectTypes.BoRecordset);
+                DPMrecset = (SAPbobsCOM.Recordset)clsModule.objaddon.objcompany.GetBusinessObject(SAPbobsCOM.BoObjectTypes.BoRecordset);
                 if (Create_Cancel == EinvoiceMethod.CreateIRN)
                 {
                     GenerateIRN GenerateIRNGetJson = new GenerateIRN();
@@ -1341,7 +1189,76 @@ namespace EInvoice.Business_Objects
                                 invrecordset.MoveNext();
                             }
 
-                            requestParams = JsonConvert.SerializeObject(GenerateIRNGetJson);
+
+                            string sql= GetDownpayment(DocEntry, TransType);
+                            DPMrecset.DoQuery(sql); 
+                            
+                            if (DPMrecset.RecordCount > 0)
+                            {
+                                for (int i = 0; i < DPMrecset.RecordCount; i++)
+                                {
+                                    GenerateIRNGetJson.InvLine.Add(new InvLine
+                                    {
+                                        ItemCode = DPMrecset.Fields.Item("ItemsellerID").Value.ToString(),
+                                        ID = invrecordset.RecordCount + (i+1).ToString(),
+                                        Note = "",
+                                        InvdQty = DPMrecset.Fields.Item("Quantity").Value.ToString(),
+                                        InvQtyUom = DPMrecset.Fields.Item("UomCode").Value.ToString(),
+                                        LineExtAmt = DPMrecset.Fields.Item("Gross").Value.ToString(),
+                                        TaxTotal = new TaxTotal()
+                                        {
+                                            TaxAmt = DPMrecset.Fields.Item("taxamt").Value.ToString(),
+                                            RoundingAmt = DPMrecset.Fields.Item("Linenet").Value.ToString(),
+                                        },
+                                        Item = new Item()
+                                        {
+                                            Name = DPMrecset.Fields.Item("Dscription").Value.ToString(),
+                                            SellersItemID = DPMrecset.Fields.Item("ItemsellerID").Value.ToString(),
+                                            BuyerItemID = DPMrecset.Fields.Item("ItemBuyerID").Value.ToString(),
+                                            StdItemID = "",
+                                            NameAR = "",
+                                            SellersItemIDAR = "",
+                                            BuyerItemIDAR = "",
+                                            StdItemIDAR = "",
+                                            ClasTaxCat = new ClasTaxCat()
+                                            {
+                                                ID = DPMrecset.Fields.Item("TaxCat").Value.ToString(),
+                                                Percent = DPMrecset.Fields.Item("Taxrate").Value.ToString(),
+                                                TaxExemptionReason = DPMrecset.Fields.Item("Reason").Value.ToString(),
+                                                TaxExemptionReasonCd = DPMrecset.Fields.Item("Reasoncode").Value.ToString(),
+                                                IDAR = "",
+                                                PercentAR = "",
+                                                TaxExemptionReasonAR = "",
+                                                TaxExemptionReasonCdAR = "",
+                                            },
+                                            Price = new Price()
+                                            {
+                                                PriceAmt = DPMrecset.Fields.Item("PriceAmt").Value.ToString(),
+                                                BaseQty = "1",
+                                                BaseQtyUoM = "",
+                                                BaseQtyUoMAR = "",
+                                            },
+                                            AlwChg = new AlwChg()
+                                            {
+                                                AlwChgReason = "",
+                                                Amt = DPMrecset.Fields.Item("DiscAmt").Value.ToString(),
+                                                BaseAmt = DPMrecset.Fields.Item("BaseAmt").Value.ToString(),
+                                                BaseAmtAR = "",
+
+                                            },
+                                        },
+                                        PaidVATCategoryTaxableAmt = DPMrecset.Fields.Item("DPTaxableAmt").Value.ToString(),
+                                        PaidVATCategoryTaxAmt = DPMrecset.Fields.Item("DPTaxAmt").Value.ToString(),
+                                        PrepaymentDocType = DPMrecset.Fields.Item("DPDoctype").Value.ToString(),
+                                        PrepaymentID = DPMrecset.Fields.Item("DPID").Value.ToString(),
+                                        PrepaymentIssueDate = clsModule.objaddon.objglobalmethods.DateFormat(clsModule.objaddon.objglobalmethods.Getdateformat(invrecordset.Fields.Item("DPIssudt").Value.ToString()), "dd/MM/yyyy", "yyyy-MM-dd"),
+                                        PrepaymentIssueTime = DPMrecset.Fields.Item("DPIssutime").Value.ToString(),
+                                        PrepaymentUUID = DPMrecset.Fields.Item("DPUUID").Value.ToString(),
+                                    });
+                                }
+                            }
+
+                                requestParams = JsonConvert.SerializeObject(GenerateIRNGetJson);
 
                             Dictionary<string, string> Queryparameter = new Dictionary<string, string>();
                             Queryparameter.Add("autoExecuteRules", "true");
@@ -1885,8 +1802,8 @@ namespace EInvoice.Business_Objects
                     string SysPath = BaseSysPath + Convert.ToString(dt.Rows[0]["DocNum"]) + "_";
                     SysPath += clsModule.objaddon.objglobalmethods.DateFormat(clsModule.objaddon.objglobalmethods.Getdateformat(Convert.ToString(dt.Rows[0]["DocDate"])), "dd/MM/yyyy", "yyyy-MM-dd");
                     Checkdoc.Add(SysPath + "_PDF.pdf");
-                    Checkdoc.Add(SysPath + "_PDFA.pdf");
-                    Checkdoc.Add(SysPath + "_XML.XMl");
+                    Checkdoc.Add(SysPath + "_PDFA3.pdf");
+                    Checkdoc.Add(SysPath + "_Xml.xml");
                 }
 
                 strsql = "SELECT CAST(T1.\"trgtPath\" AS varchar)AS \"Trgtpath\",CAST(T1.\"FileName\" AS varchar) AS \"Filename\"," +
