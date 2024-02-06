@@ -28,7 +28,8 @@ namespace EInvoice.Common
         SAPbobsCOM.Recordset objrs;
         public bool isupdate = false;
 
-        public void Load_Combo(string FormUID, SAPbouiCOM.ComboBox comboBox, string Query, string[] Validvalues = null)
+     
+        public void Load_Combo(SAPbouiCOM.ComboBox comboBox, string Query, string[] Validvalues = null)
         {
             try
 
@@ -37,19 +38,32 @@ namespace EInvoice.Common
 
                 string[] split_char;
 
-            
 
-                    if (comboBox.ValidValues.Count != 0) return;
 
-                if (Validvalues != null)
+                if (!string.IsNullOrEmpty(Query))
                 {
 
-                    if (Validvalues.Length > 0)
+                    objRs = (SAPbobsCOM.Recordset)clsModule.objaddon.objcompany.GetBusinessObject(SAPbobsCOM.BoObjectTypes.BoRecordset);
+
+                    objRs.DoQuery(Query);
+
+                    if (objRs.RecordCount == 0) return;
+
+                    for (int i = 0; i < objRs.RecordCount; i++)
 
                     {
 
-                        for (int i = 0, loopTo = Validvalues.Length - 1; i <= loopTo; i++)
+                        comboBox.ValidValues.Add(objRs.Fields.Item(0).Value.ToString(), objRs.Fields.Item(1).Value.ToString());
 
+                        objRs.MoveNext();
+
+                    }
+                }
+                if (Validvalues != null)
+                {
+                    if (Validvalues.Length > 0)
+                    {
+                        for (int i = 0, loopTo = Validvalues.Length - 1; i <= loopTo; i++)
                         {
 
                             if (string.IsNullOrEmpty(Validvalues[i]))
@@ -67,24 +81,6 @@ namespace EInvoice.Common
                         }
 
                     }
-                }
-
-
-
-                objRs = (SAPbobsCOM.Recordset)clsModule.objaddon.objcompany.GetBusinessObject(SAPbobsCOM.BoObjectTypes.BoRecordset);
-
-                objRs.DoQuery(Query);
-           
-                if (objRs.RecordCount == 0) return;
-
-                for (int i = 0; i < objRs.RecordCount; i++)
-
-                {
-                    
-                    comboBox.ValidValues.Add(objRs.Fields.Item(0).Value.ToString(), objRs.Fields.Item(1).Value.ToString());
-
-                    objRs.MoveNext();
-
                 }
 
                 if (Validvalues != null)
@@ -974,6 +970,10 @@ namespace EInvoice.Common
                     case "CRN":
                         mainttbl = "ORIN";
                          oDocument = (SAPbobsCOM.Documents)clsModule.objaddon.objcompany.GetBusinessObject(SAPbobsCOM.BoObjectTypes.oCreditNotes);
+                        break;
+                    case "DPI":
+                        mainttbl = "ODPI";
+                        oDocument = (SAPbobsCOM.Documents)clsModule.objaddon.objcompany.GetBusinessObject(SAPbobsCOM.BoObjectTypes.oDownPayments);
                         break;
                 }
             

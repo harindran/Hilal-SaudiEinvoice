@@ -457,7 +457,7 @@ namespace EInvoice.Business_Objects
 
             strSQL = " SELECT  'Advance' AS \"ItemsellerID\", '1' AS \"Quantity\",'EA' AS \"UomCode\", '0' AS \"Gross\",'0' AS \"taxamt\", ";
             strSQL += " '0' AS \"Linenet\",'Advance' AS \"Dscription\",'Advance' AS \"ItemsellerID\",'Advance' AS \"ItemBuyerID\", 'S' AS \"TaxCat\", ";
-            strSQL += " t2.\"Vat\"  AS \"Taxrate\",'' AS \"Reason\",'' AS \"Reasoncode\",0 AS \"PriceAmt\",0 AS \"DiscAmt\",0 AS \"BaseAmt\", ";
+            strSQL += " '15' AS \"Taxrate\",'' AS \"Reason\",'' AS \"Reasoncode\",0 AS \"PriceAmt\",0 AS \"DiscAmt\",0 AS \"BaseAmt\", ";
             strSQL += " t2.\"DrawnSum\"  AS \"DPTaxableAmt\", t2.\"Vat\" AS \"DPTaxAmt\",'386' AS \"DPDoctype\",t3.\"DocNum\" AS \"DPID\", ";
             strSQL += " t3.\"DocDate\"  AS \"DPIssudt\",t3.\"DocTime\"  AS \"DPIssutime\",t3.\"U_UUIDNo\" AS \"DPUUID\" ";
             strSQL += " FROM "+ maintb +" t2 ";
@@ -863,7 +863,7 @@ namespace EInvoice.Business_Objects
             bool frommul)
         {
             string requestParams;            
-            string Tempstatus;
+          
             bool Einvlog =false;
             try
             {
@@ -872,6 +872,11 @@ namespace EInvoice.Business_Objects
                 SAPbobsCOM.Recordset invrecordset, DPMrecset;
                 objRs = (SAPbobsCOM.Recordset)clsModule.objaddon.objcompany.GetBusinessObject(SAPbobsCOM.BoObjectTypes.BoRecordset);
                 DPMrecset = (SAPbobsCOM.Recordset)clsModule.objaddon.objcompany.GetBusinessObject(SAPbobsCOM.BoObjectTypes.BoRecordset);
+
+                Dictionary<string, string> Queryparameter = new Dictionary<string, string>();
+
+                Dictionary<string, string> head = new Dictionary<string, string>();
+                bool blnstatus = false;
                 if (Create_Cancel == EinvoiceMethod.CreateIRN)
                 {
                     GenerateIRN GenerateIRNGetJson = new GenerateIRN();
@@ -891,13 +896,12 @@ namespace EInvoice.Business_Objects
                             case "CLEARED":
                             case "REPORTED":
                                 Einvstus = "CLEARED";
+                                blnstatus = true;
                                 break;
                         }
-                        Tempstatus = Einvstus;
                        
 
-                        if (!(Einvstus == "CLEARED"))
-                        {
+                        
                           
                             strSQL = @"Select T0.""U_Live"",T0.""U_UATUrl"",T0.""U_LiveUrl"",T0.""U_AuthKey"",T0.""U_SerConfig"",T1.""U_URLType"",T1.""U_URL"", ";
                             strSQL += @"Case when T0.""U_Live""='N' then CONCAT(T0.""U_UATUrl"",T1.""U_URL"") Else CONCAT(T0.""U_LiveUrl"",T1.""U_URL"") End as URL,T0.""U_DevID"",T0.""U_Startdate"" ";
@@ -950,7 +954,7 @@ namespace EInvoice.Business_Objects
                                 }
                                 return false;
                             }
-
+                        
                             strSQL = @"Select T0.""U_Live"",T0.""U_UATUrl"",T0.""U_LiveUrl"",T0.""U_AuthKey"",T0.""U_SerConfig"",T1.""U_URLType"",T1.""U_URL"",T0.""U_TranName"", ";
                             strSQL += @"Case when T0.""U_Live""='N' then CONCAT(T0.""U_UATUrl"",T1.""U_URL"") Else CONCAT(T0.""U_LiveUrl"",T1.""U_URL"") End as URL,T0.""U_DevID"",T0.""U_Startdate"" ";
                             strSQL += @" from ""@EICON"" T0 join ""@EICON1"" T1 on T0.""Code""=T1.""Code"" where T0.""Code""='01'";
@@ -978,14 +982,13 @@ namespace EInvoice.Business_Objects
                                     return false;
                                 }
                             }
-                       
 
-                             clsModule.objaddon.objapplication.StatusBar.SetText("Generating Einvoice. Please Wait...." + DocEntry, SAPbouiCOM.BoMessageTime.bmt_Medium, SAPbouiCOM.BoStatusBarMessageType.smt_Warning);                            
+
                             string vatid = invrecordset.Fields.Item("TaxIdNum").Value.ToString();
                             string syscur = invrecordset.Fields.Item("SysCurrncy").Value.ToString();
 
-                            
-                            
+
+
                             GenerateIRNGetJson.ReferenceNumber = invrecordset.Fields.Item("DocNum").Value.ToString();
 
                             DateTime startDate;
@@ -995,7 +998,7 @@ namespace EInvoice.Business_Objects
                                 GenerateIRNGetJson.FinancialYear = startDate.Year.ToString();
                             }
 
-                            GenerateIRNGetJson.InvTypeCd= invrecordset.Fields.Item("TaxType").Value.ToString();
+                            GenerateIRNGetJson.InvTypeCd = invrecordset.Fields.Item("TaxType").Value.ToString();
                             GenerateIRNGetJson.InvoiceNumber = invrecordset.Fields.Item("DocNum").Value.ToString();
                             GenerateIRNGetJson.InvoiceDate = clsModule.objaddon.objglobalmethods.DateFormat(clsModule.objaddon.objglobalmethods.Getdateformat(invrecordset.Fields.Item("DocDate").Value.ToString()), "dd/MM/yyyy", "yyyy-MM-dd");
                             GenerateIRNGetJson.InvoiceTime = clsModule.objaddon.objglobalmethods.ConverttoTime(invrecordset.Fields.Item("DocTime").Value.ToString());
@@ -1008,47 +1011,47 @@ namespace EInvoice.Business_Objects
                             GenerateIRNGetJson.SelfBilledinvoice = invrecordset.Fields.Item("U_EType").Value.ToString().Substring(6, 1);
 
                             GenerateIRNGetJson.ConversionRate = invrecordset.Fields.Item("DocRate").Value.ToString();
-                            GenerateIRNGetJson.Note= "";
-                            GenerateIRNGetJson.OrderRef= "";
+                            GenerateIRNGetJson.Note = "";
+                            GenerateIRNGetJson.OrderRef = "";
                             GenerateIRNGetJson.BlngRef = invrecordset.Fields.Item("BaseDoc").Value.ToString();// invrecordset.Fields.Item("DocNum").Value.ToString(); 
-                            GenerateIRNGetJson.BlngRefIssueDt= clsModule.objaddon.objglobalmethods.DateFormat(clsModule.objaddon.objglobalmethods.Getdateformat(invrecordset.Fields.Item("DocDate").Value.ToString()), "dd/MM/yyyy", "yyyy-MM-dd"); ;
+                            GenerateIRNGetJson.BlngRefIssueDt = clsModule.objaddon.objglobalmethods.DateFormat(clsModule.objaddon.objglobalmethods.Getdateformat(invrecordset.Fields.Item("DocDate").Value.ToString()), "dd/MM/yyyy", "yyyy-MM-dd"); ;
                             GenerateIRNGetJson.ContractDocRef = invrecordset.Fields.Item("NumAtCard").Value.ToString();
-                            GenerateIRNGetJson.DocCurrencyCd= invrecordset.Fields.Item("DocCur").Value.ToString();
+                            GenerateIRNGetJson.DocCurrencyCd = invrecordset.Fields.Item("DocCur").Value.ToString();
                             GenerateIRNGetJson.DeliveryActualDeliveryDate = clsModule.objaddon.objglobalmethods.DateFormat(clsModule.objaddon.objglobalmethods.Getdateformat(invrecordset.Fields.Item("DocDate").Value.ToString()), "dd/MM/yyyy", "yyyy-MM-dd");
                             GenerateIRNGetJson.DeliveryLatestDeliveryDate = "";
-                            GenerateIRNGetJson.PymtMeansPymtMeansCode= invrecordset.Fields.Item("Paymeanscode").Value.ToString();
-                            GenerateIRNGetJson.PymtMeansInstructionNoteReason= invrecordset.Fields.Item("Comments").Value.ToString();
+                            GenerateIRNGetJson.PymtMeansPymtMeansCode = invrecordset.Fields.Item("Paymeanscode").Value.ToString();
+                            GenerateIRNGetJson.PymtMeansInstructionNoteReason = invrecordset.Fields.Item("Comments").Value.ToString();
                             GenerateIRNGetJson.PymtTermsNote = "";
                             GenerateIRNGetJson.PymtTermsPayeeAccountID = "";
-                            
+
 
                             clsModule.objaddon.objglobalmethods.WriteErrorLog("Document Details Complete");
-                            
+
                             GenerateIRNGetJson.ActngSuplParty.PartyTaxScheme.CompanyID = invrecordset.Fields.Item("TaxIdNum").Value.ToString();
                             GenerateIRNGetJson.ActngSuplParty.PartyTaxScheme.CompanyIDAR = "";
                             GenerateIRNGetJson.ActngSuplParty.PartyLegalEntity.RegName = invrecordset.Fields.Item("CompnyName").Value.ToString();
                             GenerateIRNGetJson.ActngSuplParty.PartyLegalEntity.RegNameAR = "";
 
                             GenerateIRNGetJson.ActngSuplParty.Party.SchemeID = invrecordset.Fields.Item("CmpId").Value.ToString();
-                            GenerateIRNGetJson.ActngSuplParty.Party.PartyID = invrecordset.Fields.Item("TaxIdNum").Value.ToString();
-                            GenerateIRNGetJson.ActngSuplParty.Party.SellerIDNumber = invrecordset.Fields.Item("TaxIdNum2").Value.ToString(); ;
-                            GenerateIRNGetJson.ActngSuplParty.Party.SchemeIDAR ="";
+                            //GenerateIRNGetJson.ActngSuplParty.Party.PartyID = invrecordset.Fields.Item("TaxIdNum").Value.ToString();
+                           // GenerateIRNGetJson.ActngSuplParty.Party.SellerIDNumber = invrecordset.Fields.Item("TaxIdNum2").Value.ToString(); ;
+                            GenerateIRNGetJson.ActngSuplParty.Party.SchemeIDAR = "";
                             GenerateIRNGetJson.ActngSuplParty.Party.PartyIDAR = "";
-                            GenerateIRNGetJson.ActngSuplParty.Party.SellerIDNumberAR ="";
+                            GenerateIRNGetJson.ActngSuplParty.Party.SellerIDNumberAR = "";
 
-                            GenerateIRNGetJson.ActngSuplParty.PostalAddress.SellerCode ="";
-                            GenerateIRNGetJson.ActngSuplParty.PostalAddress.StrName = invrecordset.Fields.Item("StreetNo").Value.ToString(); 
+                            GenerateIRNGetJson.ActngSuplParty.PostalAddress.SellerCode = "";
+                            GenerateIRNGetJson.ActngSuplParty.PostalAddress.StrName = invrecordset.Fields.Item("StreetNo").Value.ToString();
                             GenerateIRNGetJson.ActngSuplParty.PostalAddress.AdlStrName = invrecordset.Fields.Item("Street").Value.ToString();
                             GenerateIRNGetJson.ActngSuplParty.PostalAddress.PlotIdentification = "";
-                            GenerateIRNGetJson.ActngSuplParty.PostalAddress.BldgNumber = invrecordset.Fields.Item("Building").Value.ToString(); 
-                            GenerateIRNGetJson.ActngSuplParty.PostalAddress.CityName = invrecordset.Fields.Item("City").Value.ToString(); 
-                            GenerateIRNGetJson.ActngSuplParty.PostalAddress.PostalZone = invrecordset.Fields.Item("ZipCode").Value.ToString(); 
+                            GenerateIRNGetJson.ActngSuplParty.PostalAddress.BldgNumber = invrecordset.Fields.Item("Building").Value.ToString();
+                            GenerateIRNGetJson.ActngSuplParty.PostalAddress.CityName = invrecordset.Fields.Item("City").Value.ToString();
+                            GenerateIRNGetJson.ActngSuplParty.PostalAddress.PostalZone = invrecordset.Fields.Item("ZipCode").Value.ToString();
                             GenerateIRNGetJson.ActngSuplParty.PostalAddress.CntrySubentityCd = invrecordset.Fields.Item("CodeCountry").Value.ToString();
                             GenerateIRNGetJson.ActngSuplParty.PostalAddress.CitySubdivisionName = invrecordset.Fields.Item("County").Value.ToString();
                             GenerateIRNGetJson.ActngCustomerParty.PostalAddress.Cntry = invrecordset.Fields.Item("CodeCountry").Value.ToString();
 
                             GenerateIRNGetJson.ActngSuplParty.PostalAddress.StrNameAR = "";
-                            GenerateIRNGetJson.ActngSuplParty.PostalAddress.AdlStrNameAR ="";
+                            GenerateIRNGetJson.ActngSuplParty.PostalAddress.AdlStrNameAR = "";
                             GenerateIRNGetJson.ActngSuplParty.PostalAddress.PlotIdentificationAR = "";
                             GenerateIRNGetJson.ActngSuplParty.PostalAddress.BldgNumberAR = "";
                             GenerateIRNGetJson.ActngSuplParty.PostalAddress.CityNameAR = "";
@@ -1067,7 +1070,7 @@ namespace EInvoice.Business_Objects
 
                             GenerateIRNGetJson.ActngCustomerParty.Party.SchemeID = invrecordset.Fields.Item("U_IDType").Value.ToString();
                             GenerateIRNGetJson.ActngCustomerParty.Party.PartyID = "";
-                            GenerateIRNGetJson.ActngCustomerParty.Party.BuyerIDNumber = invrecordset.Fields.Item("AddID").Value.ToString(); 
+                            GenerateIRNGetJson.ActngCustomerParty.Party.BuyerIDNumber = invrecordset.Fields.Item("AddID").Value.ToString();
                             GenerateIRNGetJson.ActngCustomerParty.Party.SchemeIDAR = "";
                             GenerateIRNGetJson.ActngCustomerParty.Party.PartyIDAR = "";
                             GenerateIRNGetJson.ActngCustomerParty.Party.SellerIDNumberAR = "";
@@ -1083,15 +1086,15 @@ namespace EInvoice.Business_Objects
                             GenerateIRNGetJson.ActngCustomerParty.PostalAddress.CitySubdivisionName = invrecordset.Fields.Item("CountyB").Value.ToString();
                             GenerateIRNGetJson.ActngCustomerParty.PostalAddress.Cntry = invrecordset.Fields.Item("CodeCountryB").Value.ToString();
 
-                            GenerateIRNGetJson.ActngCustomerParty.PostalAddress.StrNameAR = invrecordset.Fields.Item("U_AraStreetB").Value.ToString(); 
+                            GenerateIRNGetJson.ActngCustomerParty.PostalAddress.StrNameAR = invrecordset.Fields.Item("U_AraStreetB").Value.ToString();
                             GenerateIRNGetJson.ActngCustomerParty.PostalAddress.AdlStrNameAR = invrecordset.Fields.Item("U_AraPOS").Value.ToString();
                             GenerateIRNGetJson.ActngCustomerParty.PostalAddress.PlotIdentificationAR = "";
-                            GenerateIRNGetJson.ActngCustomerParty.PostalAddress.BldgNumberAR = invrecordset.Fields.Item("U_AraBlockB").Value.ToString(); 
+                            GenerateIRNGetJson.ActngCustomerParty.PostalAddress.BldgNumberAR = invrecordset.Fields.Item("U_AraBlockB").Value.ToString();
                             GenerateIRNGetJson.ActngCustomerParty.PostalAddress.CityNameAR = invrecordset.Fields.Item("U_AraCityB").Value.ToString();
                             GenerateIRNGetJson.ActngCustomerParty.PostalAddress.PostalZoneAR = invrecordset.Fields.Item("U_AraZipB").Value.ToString();
                             GenerateIRNGetJson.ActngCustomerParty.PostalAddress.CntrySubentityCdAR = "";
                             GenerateIRNGetJson.ActngCustomerParty.PostalAddress.CitySubdivisionNameAR = "";
-                       
+
                             clsModule.objaddon.objglobalmethods.WriteErrorLog("Buyer Details Complete");
 
 
@@ -1103,8 +1106,8 @@ namespace EInvoice.Business_Objects
                             GenerateIRNGetJson.LegalMonetaryTotal.PrepaidAmt = "0.00";
                             //invrecordset.Fields.Item("Roundtot").Value.ToString()
                             GenerateIRNGetJson.LegalMonetaryTotal.PayableAmt = invrecordset.Fields.Item("Totnet1").Value.ToString();
-                            
-                            
+
+
                             clsModule.objaddon.objglobalmethods.WriteErrorLog("Document Details Complete");
 
 
@@ -1118,22 +1121,22 @@ namespace EInvoice.Business_Objects
                                     Note = "",
                                     InvdQty = invrecordset.Fields.Item("Quantity").Value.ToString(),
                                     InvQtyUom = invrecordset.Fields.Item("UomCode").Value.ToString(),
-                                    LineExtAmt= invrecordset.Fields.Item("Gross").Value.ToString(),
-                                    TaxTotal = new TaxTotal ()
+                                    LineExtAmt = invrecordset.Fields.Item("Gross").Value.ToString(),
+                                    TaxTotal = new TaxTotal()
                                     {
-                                        TaxAmt=invrecordset.Fields.Item("taxamt").Value.ToString(),
-                                        RoundingAmt= invrecordset.Fields.Item("Linenet").Value.ToString(),
-                                    },                                  
+                                        TaxAmt = invrecordset.Fields.Item("taxamt").Value.ToString(),
+                                        RoundingAmt = invrecordset.Fields.Item("Linenet").Value.ToString(),
+                                    },
                                     Item = new Item()
                                     {
                                         Name = invrecordset.Fields.Item("Dscription").Value.ToString(),
                                         SellersItemID = invrecordset.Fields.Item("ItemsellerID").Value.ToString(),
-                                        BuyerItemID = invrecordset.Fields.Item("ItemBuyerID").Value.ToString(),                                        
+                                        BuyerItemID = invrecordset.Fields.Item("ItemBuyerID").Value.ToString(),
                                         StdItemID = "",
                                         NameAR = "",
                                         SellersItemIDAR = "",
                                         BuyerItemIDAR = "",
-                                        StdItemIDAR = "",                                        
+                                        StdItemIDAR = "",
                                         ClasTaxCat = new ClasTaxCat()
                                         {
                                             ID = invrecordset.Fields.Item("TaxCat").Value.ToString(),
@@ -1157,17 +1160,17 @@ namespace EInvoice.Business_Objects
                                             AlwChgReason = "",
                                             Amt = invrecordset.Fields.Item("DiscAmt").Value.ToString(),
                                             BaseAmt = invrecordset.Fields.Item("BaseAmt").Value.ToString(),
-                                            BaseAmtAR = "",   
-                                            
-                                        },                                                                               
-                                    },  
-                                   PaidVATCategoryTaxableAmt="",
-                                   PaidVATCategoryTaxAmt="",
-                                   PrepaymentDocType="",
-                                   PrepaymentID="",
-                                   PrepaymentIssueDate="",
-                                   PrepaymentIssueTime="",
-                                   PrepaymentUUID=""
+                                            BaseAmtAR = "",
+
+                                        },
+                                    },
+                                    PaidVATCategoryTaxableAmt = "",
+                                    PaidVATCategoryTaxAmt = "",
+                                    PrepaymentDocType = "",
+                                    PrepaymentID = "",
+                                    PrepaymentIssueDate = "",
+                                    PrepaymentIssueTime = "",
+                                    PrepaymentUUID = ""
                                 });
                                 if (invrecordset.Fields.Item("LineAllow").Value.ToString() != "0")
                                 {
@@ -1177,22 +1180,22 @@ namespace EInvoice.Business_Objects
                                         Indicator = "False",
                                         AlwChgReason = "Discount",
                                         Amt = invrecordset.Fields.Item("LineAllow").Value.ToString(),
-                                        MFN =((Convert.ToDecimal(invrecordset.Fields.Item("LineAllow").Value.ToString())/ Convert.ToDecimal(invrecordset.Fields.Item("BaseAmt").Value.ToString()) )*100).ToString(),                                         
-                                        BaseAmt = invrecordset.Fields.Item("BaseAmt").Value.ToString(),   
-                                        TaxCat=new TaxCat()
+                                        MFN = ((Convert.ToDecimal(invrecordset.Fields.Item("LineAllow").Value.ToString()) / Convert.ToDecimal(invrecordset.Fields.Item("BaseAmt").Value.ToString())) * 100).ToString(),
+                                        BaseAmt = invrecordset.Fields.Item("BaseAmt").Value.ToString(),
+                                        TaxCat = new TaxCat()
                                         {
                                             ID = invrecordset.Fields.Item("TaxCat").Value.ToString(),
                                             Percent = invrecordset.Fields.Item("Taxrate").Value.ToString()
                                         }
                                     });
-                                }                                      
+                                }
                                 invrecordset.MoveNext();
                             }
 
 
-                            string sql= GetDownpayment(DocEntry, TransType);
-                            DPMrecset.DoQuery(sql); 
-                            
+                            string sql = GetDownpayment(DocEntry, TransType);
+                            DPMrecset.DoQuery(sql);
+
                             if (DPMrecset.RecordCount > 0)
                             {
                                 for (int i = 0; i < DPMrecset.RecordCount; i++)
@@ -1200,7 +1203,7 @@ namespace EInvoice.Business_Objects
                                     GenerateIRNGetJson.InvLine.Add(new InvLine
                                     {
                                         ItemCode = DPMrecset.Fields.Item("ItemsellerID").Value.ToString(),
-                                        ID = invrecordset.RecordCount + (i+1).ToString(),
+                                        ID = (invrecordset.RecordCount + (i + 1)).ToString(),
                                         Note = "",
                                         InvdQty = DPMrecset.Fields.Item("Quantity").Value.ToString(),
                                         InvQtyUom = DPMrecset.Fields.Item("UomCode").Value.ToString(),
@@ -1251,27 +1254,39 @@ namespace EInvoice.Business_Objects
                                         PaidVATCategoryTaxAmt = DPMrecset.Fields.Item("DPTaxAmt").Value.ToString(),
                                         PrepaymentDocType = DPMrecset.Fields.Item("DPDoctype").Value.ToString(),
                                         PrepaymentID = DPMrecset.Fields.Item("DPID").Value.ToString(),
-                                        PrepaymentIssueDate = clsModule.objaddon.objglobalmethods.DateFormat(clsModule.objaddon.objglobalmethods.Getdateformat(invrecordset.Fields.Item("DPIssudt").Value.ToString()), "dd/MM/yyyy", "yyyy-MM-dd"),
-                                        PrepaymentIssueTime = DPMrecset.Fields.Item("DPIssutime").Value.ToString(),
+                                        PrepaymentIssueDate = clsModule.objaddon.objglobalmethods.DateFormat(clsModule.objaddon.objglobalmethods.Getdateformat(DPMrecset.Fields.Item("DPIssudt").Value.ToString()), "dd/MM/yyyy", "yyyy-MM-dd"),
+                                        PrepaymentIssueTime = clsModule.objaddon.objglobalmethods.ConverttoTime(DPMrecset.Fields.Item("DPIssutime").Value.ToString()),
                                         PrepaymentUUID = DPMrecset.Fields.Item("DPUUID").Value.ToString(),
                                     });
+                                    DPMrecset.MoveNext();
                                 }
                             }
 
-                                requestParams = JsonConvert.SerializeObject(GenerateIRNGetJson);
 
-                            Dictionary<string, string> Queryparameter = new Dictionary<string, string>();
+
+
+                            requestParams = JsonConvert.SerializeObject(GenerateIRNGetJson);
+                       
+                        if (!(Einvstus == "CLEARED"))
+                        {
+                            clsModule.objaddon.objapplication.StatusBar.SetText("Generating Einvoice. Please Wait...." + DocEntry, SAPbouiCOM.BoMessageTime.bmt_Medium, SAPbouiCOM.BoStatusBarMessageType.smt_Warning);
+
+                            Queryparameter = new Dictionary<string, string>();
                             Queryparameter.Add("autoExecuteRules", "true");
                             Queryparameter.Add("transformationName", objRs.Fields.Item("U_TranName").Value.ToString());
-                            
-                            Dictionary<string, string> head = new Dictionary<string, string>();
+
+                            head = new Dictionary<string, string>();
                             head.Add("authorization", "Bearer " + Accesstkn);
 
-                            datatable = Get_API_Response(requestParams, objRs.Fields.Item("URL").Value.ToString(),headers:head, Queryparameter: Queryparameter);
-
+                            datatable = Get_API_Response(requestParams, objRs.Fields.Item("URL").Value.ToString(), headers: head, Queryparameter: Queryparameter);
+                            if (datatable.Rows.Count > 0)
+                            {
+                                blnstatus = true;
+                            }
+                        }
                             string msg = "";
                             Response js = new Response();
-                            if (datatable.Rows.Count > 0)
+                            if (blnstatus)
                             {
                                
                                 string BaseSysPath = Getbasepath();
@@ -1283,7 +1298,7 @@ namespace EInvoice.Business_Objects
                                 string Xmlpath = SysPath + "_Xml.xml";
 
                                 GetPDF(DocEntry, TransType, FileName);
-                                Thread.Sleep(5000);
+                                Thread.Sleep(6000);
 
                                 GetXML(DocEntry, TransType, Accesstkn,Xmlpath,ref datatable);
                                 if (datatable.Rows.Count == 0)
@@ -1311,8 +1326,9 @@ namespace EInvoice.Business_Objects
                                         clsModule.objaddon.objapplication.StatusBar.SetText("API is Missing for \"Get E-Invoice\". Please update in E-invoice Configuration... ", SAPbouiCOM.BoMessageTime.bmt_Long, SAPbouiCOM.BoStatusBarMessageType.smt_Error);
                                         return false;
                                     }
-                             
-                                    Queryparameter.Add("financialyear", GenerateIRNGetJson.FinancialYear);
+
+                                Queryparameter = new Dictionary<string, string>();
+                                Queryparameter.Add("financialyear", GenerateIRNGetJson.FinancialYear);
                                     Queryparameter.Add("ref_nm", GenerateIRNGetJson.ReferenceNumber);
                                     Queryparameter.Add("invoicetypecode", GenerateIRNGetJson.InvTypeCd);
 
@@ -1321,7 +1337,8 @@ namespace EInvoice.Business_Objects
 
 
                                     datatable = Get_API_Response("", objRs.Fields.Item("URL").Value.ToString(), httpMethod: "GET", headers: head, Queryparameter: Queryparameter);
-                                    
+
+                              
                                     if (datatable.Rows.Count > 0)
                                     {
                                      if(clsModule.objaddon.objglobalmethods.CheckIfColumnExists(datatable, "errors"))
@@ -1333,6 +1350,19 @@ namespace EInvoice.Business_Objects
                                         {
                                             js = JsonConvert.DeserializeObject<Response>(datatable.Rows[0]["Invoice"].ToString());
                                         }
+                                        else
+                                        {
+                                            
+                                           
+
+                                            js = new Response();
+                                            js.ErrorResponse.errors.entities.Add(new Entity
+                                            {
+                                                records = new List<Record> { new Record { errors = new List<string> { "Regenerate After few Minutes" } } }
+                                            });
+
+
+                                        }                                        
                                     }
 
                                    
@@ -1344,13 +1374,23 @@ namespace EInvoice.Business_Objects
                                         Errors error = JsonConvert.DeserializeObject<Errors>(datatable.Rows[0]["errors"].ToString());
                                         js.ErrorResponse.errors = error;
                                     }
+                                   else
+                                    {
+
+                                        js = new Response();
+                                        js.ErrorResponse.errors.entities.Add(new Entity
+                                        {
+                                            records = new List<Record> { new Record { errors = new List<string> { "Regenerate After few Minutes" } } }
+                                        });
+
+                                    }
                                 }
-                                Einvlog = E_Invoice_Logs(DocEntry, js, TransType, "Create", Type);
+                            Einvlog = E_Invoice_Logs(DocEntry, js, TransType, "Create", Type);
 
 
 
                             }
-                        }                        
+                                              
                     }
 
                     else
@@ -1403,7 +1443,13 @@ namespace EInvoice.Business_Objects
                     }
                     err = true;    
                 }
-               
+
+                foreach (object item in einv.ErrorResponse.errors.errors)
+                {
+
+                    Errors += string.Join("\n ", item.ToString()) + "\n";                                  
+                    err = true;
+                }
                 if (Type == "Create")
                 {
                     if (!err)
@@ -1420,6 +1466,7 @@ namespace EInvoice.Business_Objects
                         oGeneralData.SetProperty("U_Issuetm", einv.IssueTime);
                         oGeneralData.SetProperty("U_GenDt", einv.ZatcaResponseDate.Date.ToString("yyyy-MM-dd"));
                         oGeneralData.SetProperty("U_Gentm", einv.ZatcaResponseDate.TimeOfDay.ToString());
+                        oGeneralData.SetProperty("U_DocEntry", InvDocEntry);
                         oGeneralParams = oGeneralService.Add(oGeneralData);
 
                         if (TranType == "E-Invoice")

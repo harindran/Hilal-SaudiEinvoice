@@ -42,7 +42,7 @@ namespace EInvoice.Business_Objects
             retstring += docseries + " \"DocNum\",";
 
             retstring += " doc.\"DocDate\" ,doc.\"DocTime\" ,doc.\"NumAtCard\" , ";        
-            retstring += " doc.\"DocCur\",  CASE WHEN BPM.\"U_EType\"=1 THEN '0100000' WHEN \"U_EType\"=2 THEN '0200000' WHEN \"U_EType\"=3 THEN '0100100' ELSE '' END AS \"U_EType\",BPM.\"U_IDType\" , ";
+            retstring += " doc.\"DocCur\",  CASE WHEN BPM.\"U_EType\"=1 THEN '0100000' WHEN \"U_EType\"=2 THEN '0200000' WHEN \"U_EType\"=3 THEN '0100100' ELSE '' END AS \"U_EType\",Case when BPM.\"U_IDType\"='-' then '' else BPM.\"U_IDType\" end as \"U_IDType\",  ";
             retstring += " BPM.\"CardName\" ,BPM.\"LicTradNum\"  ,BPM.\"AddID\", ";
             retstring += " CMP.\"CompnyName\" ,'CRN' as \"CmpId\",CMP.\"FreeZoneNo\" as \"TaxIdNum\", CMP.\"TaxIdNum2\",CMPADD.\"Street\", cmp.\"SysCurrncy\", ";
             retstring += " CMPADD.\"StreetNo\" ,CMPADD.\"Building\" ,CMPADD.\"City\" ,CMPADD.\"County\" ,CMPADD.\"ZipCode\" , ";
@@ -53,8 +53,8 @@ namespace EInvoice.Business_Objects
             retstring += " buyaddr.\"CountryB\" \"CodeCountryB\" ,BuyST.\"Name\" \"StateB\" ,BuyCY.\"Name\"  \"CountryB\" ,";
 
            
-            //retstring += " BUYADDR.\"U_AraStreetB\",BUYADDR.\"U_AraPOS\" ,BUYADDR.\"U_AraBlockB\",BUYADDR.\"U_AraCityB\" , BUYADDR.\"U_AraZipB\" ,";
-            retstring += " '' as \"U_AraStreetB\",'' as \"U_AraPOS\" ,'' as \"U_AraBlockB\",'' as \"U_AraCityB\" , '' as \"U_AraZipB\" ,";
+            retstring += " BUYADDR.\"U_AraStreetB\",BUYADDR.\"U_AraPOS\" ,BUYADDR.\"U_AraBlockB\",BUYADDR.\"U_AraCityB\" , BUYADDR.\"U_AraZipB\" ,";
+        // retstring += " '' as \"U_AraStreetB\",'' as \"U_AraPOS\" ,'' as \"U_AraBlockB\",'' as \"U_AraCityB\" , '' as \"U_AraZipB\" ,";
 
             retstring += " itm.\"LineNum\"+1 \"LineNum\" ,itm.\"Dscription\",itm.\"Currency\",itm.\"SubCatNum\" as \"ItemBuyerID\" ,itm.\"ItemCode\" as \"ItemsellerID\", ";           
             retstring += " tax.\"Rate\" AS \"Taxrate\", ";
@@ -151,7 +151,7 @@ namespace EInvoice.Business_Objects
             retstring += docseries + " \"DocNum\",";
 
             retstring += " doc.\"DocDate\" ,doc.\"DocTime\" ,doc.\"NumAtCard\" , ";
-            retstring += " doc.\"DocCur\",  CASE WHEN BPM.\"U_EType\"=1 THEN '0100000' WHEN \"U_EType\"=2 THEN '0200000' WHEN \"U_EType\"=3 THEN '0100100'  ELSE '' END AS \"U_EType\",BPM.\"U_IDType\" , ";
+            retstring += " doc.\"DocCur\",  CASE WHEN BPM.\"U_EType\"=1 THEN '0100000' WHEN \"U_EType\"=2 THEN '0200000' WHEN \"U_EType\"=3 THEN '0100100'  ELSE '' END AS \"U_EType\",Case when BPM.\"U_IDType\"='-' then '' else BPM.\"U_IDType\" end as \"U_IDType\", ";
             retstring += " BPM.\"CardName\" ,BPM.\"LicTradNum\"  ,BPM.\"AddID\", ";
             retstring += " CMP.\"CompnyName\",'CRN' as \"CmpId\",CMP.\"FreeZoneNo\" as \"TaxIdNum\", CMP.\"TaxIdNum2\",CMPADD.\"Street\",cmp.\"SysCurrncy\",  ";
             retstring += " CMPADD.\"StreetNo\" ,CMPADD.\"Building\" ,CMPADD.\"City\" ,CMPADD.\"County\" ,CMPADD.\"ZipCode\" , ";
@@ -251,7 +251,7 @@ namespace EInvoice.Business_Objects
             retstring += docseries + " \"DocNum\",";
 
             retstring += " doc.\"DocDate\" ,doc.\"DocTime\" ,doc.\"NumAtCard\" , ";
-            retstring += " doc.\"DocCur\",  CASE WHEN BPM.\"U_EType\"=1 THEN '0100000' WHEN \"U_EType\"=2 THEN '0200000' WHEN \"U_EType\"=3 THEN '0100100' ELSE '' END AS \"U_EType\",BPM.\"U_IDType\" , ";
+            retstring += " doc.\"DocCur\",  CASE WHEN BPM.\"U_EType\"=1 THEN '0100000' WHEN \"U_EType\"=2 THEN '0200000' WHEN \"U_EType\"=3 THEN '0100100' ELSE '' END AS \"U_EType\",Case when BPM.\"U_IDType\"='-' then '' else BPM.\"U_IDType\" end as \"U_IDType\",  ";
             retstring += " BPM.\"CardName\" ,BPM.\"LicTradNum\"  ,BPM.\"AddID\", ";
             retstring += " CMP.\"CompnyName\" ,'CRN' as \"CmpId\",CMP.\"FreeZoneNo\" as \"TaxIdNum\", CMP.\"TaxIdNum2\",CMPADD.\"Street\", cmp.\"SysCurrncy\", ";
             retstring += " CMPADD.\"StreetNo\" ,CMPADD.\"Building\" ,CMPADD.\"City\" ,CMPADD.\"County\" ,CMPADD.\"ZipCode\" , ";

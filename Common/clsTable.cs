@@ -55,7 +55,7 @@ namespace EInvoice.Common
             AddFields("@EILOG", "QRCod", "QRCode", SAPbobsCOM.BoFieldTypes.db_Memo);
             AddFields("@EILOG", "RawQR", "RawQRCode", SAPbobsCOM.BoFieldTypes.db_Memo);
             AddFields("@EILOG", "UUID", "UUID", SAPbobsCOM.BoFieldTypes.db_Alpha, 50);
-            AddFields("@EILOG", "PIH", "PIH", SAPbobsCOM.BoFieldTypes.db_Alpha, 50);
+            AddFields("@EILOG", "PIH", "PIH", SAPbobsCOM.BoFieldTypes.db_Alpha, 100);
             AddFields("@EILOG", "InvHash", "InvoiceHash", SAPbobsCOM.BoFieldTypes.db_Alpha, 50);
             AddFields("@EILOG", "ICV", "ICV", SAPbobsCOM.BoFieldTypes.db_Alpha, 50);
             AddFields("@EILOG", "DeviceId", "DeviceId", SAPbobsCOM.BoFieldTypes.db_Alpha, 50);
