@@ -679,6 +679,7 @@ namespace EInvoice.Business_Objects
         {
             SAPbobsCOM.Recordset invrecordset;
             invrecordset = (SAPbobsCOM.Recordset)clsModule.objaddon.objcompany.GetBusinessObject(SAPbobsCOM.BoObjectTypes.BoRecordset);
+            objRs = (SAPbobsCOM.Recordset)clsModule.objaddon.objcompany.GetBusinessObject(SAPbobsCOM.BoObjectTypes.BoRecordset);
 
             strSQL = @"Select T0.""U_Live"",T0.""U_UATUrl"",T0.""U_LiveUrl"",T0.""U_AuthKey"",T0.""U_SerConfig"",T1.""U_URLType"",T1.""U_URL"", ";
             strSQL += @"Case when T0.""U_Live""='N' then CONCAT(T0.""U_UATUrl"",T1.""U_URL"") Else CONCAT(T0.""U_LiveUrl"",T1.""U_URL"") End as URL,";
@@ -728,7 +729,7 @@ namespace EInvoice.Business_Objects
         {
             SAPbobsCOM.Recordset invrecordset;
             invrecordset = (SAPbobsCOM.Recordset)clsModule.objaddon.objcompany.GetBusinessObject(SAPbobsCOM.BoObjectTypes.BoRecordset);
-
+            objRs = (SAPbobsCOM.Recordset)clsModule.objaddon.objcompany.GetBusinessObject(SAPbobsCOM.BoObjectTypes.BoRecordset);
 
             strSQL = GetInvoiceData(DocEntry, TransType);
             invrecordset.DoQuery(strSQL);
@@ -786,7 +787,7 @@ namespace EInvoice.Business_Objects
         {
             SAPbobsCOM.Recordset invrecordset;
             invrecordset = (SAPbobsCOM.Recordset)clsModule.objaddon.objcompany.GetBusinessObject(SAPbobsCOM.BoObjectTypes.BoRecordset);
-        
+            objRs = (SAPbobsCOM.Recordset)clsModule.objaddon.objcompany.GetBusinessObject(SAPbobsCOM.BoObjectTypes.BoRecordset);
 
             strSQL = GetInvoiceData(DocEntry, TransType);
             invrecordset.DoQuery(strSQL);
@@ -1033,8 +1034,8 @@ namespace EInvoice.Business_Objects
                             GenerateIRNGetJson.ActngSuplParty.PartyLegalEntity.RegNameAR = "";
 
                             GenerateIRNGetJson.ActngSuplParty.Party.SchemeID = invrecordset.Fields.Item("CmpId").Value.ToString();
-                            //GenerateIRNGetJson.ActngSuplParty.Party.PartyID = invrecordset.Fields.Item("TaxIdNum").Value.ToString();
-                           // GenerateIRNGetJson.ActngSuplParty.Party.SellerIDNumber = invrecordset.Fields.Item("TaxIdNum2").Value.ToString(); ;
+                           GenerateIRNGetJson.ActngSuplParty.Party.PartyID = invrecordset.Fields.Item("TaxIdNum2").Value.ToString();
+                            GenerateIRNGetJson.ActngSuplParty.Party.SellerIDNumber = invrecordset.Fields.Item("TaxIdNum2").Value.ToString(); ;
                             GenerateIRNGetJson.ActngSuplParty.Party.SchemeIDAR = "";
                             GenerateIRNGetJson.ActngSuplParty.Party.PartyIDAR = "";
                             GenerateIRNGetJson.ActngSuplParty.Party.SellerIDNumberAR = "";
@@ -1180,7 +1181,7 @@ namespace EInvoice.Business_Objects
                                         Indicator = "False",
                                         AlwChgReason = "Discount",
                                         Amt = invrecordset.Fields.Item("LineAllow").Value.ToString(),
-                                        MFN = ((Convert.ToDecimal(invrecordset.Fields.Item("LineAllow").Value.ToString()) / Convert.ToDecimal(invrecordset.Fields.Item("BaseAmt").Value.ToString())) * 100).ToString(),
+                                        MFN = Math.Round(((Convert.ToDecimal(invrecordset.Fields.Item("LineAllow").Value.ToString()) / Convert.ToDecimal(invrecordset.Fields.Item("BaseAmt").Value.ToString())) * 100),2).ToString(),
                                         BaseAmt = invrecordset.Fields.Item("BaseAmt").Value.ToString(),
                                         TaxCat = new TaxCat()
                                         {
@@ -1297,24 +1298,16 @@ namespace EInvoice.Business_Objects
                                 string FilePDFA= SysPath + "_PDFA3.pdf";
                                 string Xmlpath = SysPath + "_Xml.xml";
 
-                                GetPDF(DocEntry, TransType, FileName);
-                                Thread.Sleep(6000);
+                            List<string> PathDOCList = new List<string>();
+
+                            Thread.Sleep(7000);
 
                                 GetXML(DocEntry, TransType, Accesstkn,Xmlpath,ref datatable);
                                 if (datatable.Rows.Count == 0)
                                 {
 
-                                  
-                                    GetPDFA3(DocEntry, TransType, FilePDFA);
 
-                                    List<string> PathDOCList = new List<string>();
-
-                                    PathDOCList.Add(FileName);
-                                    PathDOCList.Add(FilePDFA);
-                                    PathDOCList.Add(Xmlpath);
-
-                                    clsModule.objaddon.objglobalmethods.saveattachment(DocEntry, PathDOCList, TransType);
-
+                                   
                                     strSQL = @"Select T0.""U_Live"",T0.""U_UATUrl"",T0.""U_LiveUrl"",T0.""U_AuthKey"",T0.""U_SerConfig"",T1.""U_URLType"",T1.""U_URL"", ";
                                     strSQL += @"Case when T0.""U_Live""='N' then CONCAT(T0.""U_UATUrl"",T1.""U_URL"") Else CONCAT(T0.""U_LiveUrl"",T1.""U_URL"") End as URL,T0.""U_DevID"",T0.""U_Startdate"" ";
                                     strSQL += @" from ""@EICON"" T0 join ""@EICON1"" T1 on T0.""Code""=T1.""Code"" where T0.""Code""='01'";
@@ -1388,9 +1381,18 @@ namespace EInvoice.Business_Objects
                             Einvlog = E_Invoice_Logs(DocEntry, js, TransType, "Create", Type);
 
 
+                            GetPDF(DocEntry, TransType, FileName);
+                            GetPDFA3(DocEntry, TransType, FilePDFA);
 
-                            }
-                                              
+
+                            PathDOCList.Add(FileName);
+                            PathDOCList.Add(FilePDFA);
+                            PathDOCList.Add(Xmlpath);
+                            clsModule.objaddon.objglobalmethods.saveattachment(DocEntry, PathDOCList, TransType);
+
+
+                        }
+
                     }
 
                     else
