@@ -1300,7 +1300,7 @@ namespace EInvoice.Business_Objects
 
                             List<string> PathDOCList = new List<string>();
 
-                            Thread.Sleep(7000);
+                            Thread.Sleep(10000);
 
                                 GetXML(DocEntry, TransType, Accesstkn,Xmlpath,ref datatable);
                                 if (datatable.Rows.Count == 0)
