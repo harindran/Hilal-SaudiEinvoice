@@ -34,6 +34,7 @@ namespace EInvoice.Business_Objects
             this.StaticText3 = ((SAPbouiCOM.StaticText)(this.GetItem("Ltrntyp").Specific));
             this.StaticText2 = ((SAPbouiCOM.StaticText)(this.GetItem("Item_0").Specific));
             this.ComboBox0 = ((SAPbouiCOM.ComboBox)(this.GetItem("Cstus").Specific));
+            this.CheckBox0 = ((SAPbouiCOM.CheckBox)(this.GetItem("Item_2").Specific));
             this.OnCustomInitialize();
 
         }
@@ -74,7 +75,7 @@ namespace EInvoice.Business_Objects
             {
 
                 string series = "";
-                string lstrquery = "SELECT o2.\"U_Prefix\"  FROM OUSR o LEFT JOIN OUBR o2 ON o2.\"Code\" = o.\"Branch\" WHERE o.USER_CODE = '" + clsModule.objaddon.objcompany.UserName + "' ";
+                string lstrquery = "SELECT o2.\"U_Prefix\"  FROM OUSR o LEFT JOIN OUBR o2 ON o2.\"Code\" = o.\"Branch\" WHERE o.USER_CODE = '" + clsModule.objaddon.objcompany.UserName + "'  AND o2.\"U_Z_FrgnName\" ='Y'  ";
                 SAPbobsCOM.Recordset rs = clsModule.objaddon.objglobalmethods.GetmultipleRS(lstrquery);
                 if (rs.RecordCount > 0)
                 {
@@ -120,10 +121,10 @@ namespace EInvoice.Business_Objects
                 //query += " \"INVTyp\" as \"INVTyp\" ";
 
                 query += " FROM(";
-                query += "SELECT COALESCE(IDoc.\"DocNum\",CDoc.\"DocNum\",DDoc.\"DocNum\") as \"DocNum\", ";
-                query += " COALESCE(IDoc.\"DocEntry\",CDoc.\"DocEntry\",DDoc.\"DocEntry\") as \"DocEntry\", ";
-                query += " COALESCE(IDoc.\"DocDate\",CDoc.\"DocDate\",DDoc.\"DocDate\") as \"DocDate\", ";
-                query += " COALESCE(IDoc.\"Series\",CDoc.\"Series\",DDoc.\"Series\") as \"Series\", ";
+                query += "SELECT COALESCE(IDoc.\"DocNum\",CDoc.\"DocNum\",DDoc.\"DocNum\",DPDoc.\"DocNum\") as \"DocNum\", ";
+                query += " COALESCE(IDoc.\"DocEntry\",CDoc.\"DocEntry\",DDoc.\"DocEntry\",DPDoc.\"DocEntry\") as \"DocEntry\", ";
+                query += " COALESCE(IDoc.\"DocDate\",CDoc.\"DocDate\",DDoc.\"DocDate\",DPDoc.\"DocDate\") as \"DocDate\", ";
+                query += " COALESCE(IDoc.\"Series\",CDoc.\"Series\",DDoc.\"Series\",DPDoc.\"Series\") as \"Series\", ";
 
                 query += " Elog.\"U_Status\" as \"Status\",ELog.\"U_QRCod\" as \"QRCode\",ELog.\"U_RawQR\" as \"RawQR\",Elog.\"U_UUID\" as \"UUID\",Elog.\"U_PIH\" as \"PIH\", ";
                 query += " Elog.\"U_InvHash\" as \"InvHash\",Elog.\"U_ICV\" as \"ICV\",Elog.\"U_DeviceId\" as \"DeviceId\" ,Elog.\"U_SellVat\" as \"SellVat\", ";
@@ -132,18 +133,20 @@ namespace EInvoice.Business_Objects
                 query += " Elog.\"U_Gentm\" as \"Gentm\",Elog.\"U_INVXml\" as \"INVXml\" ,Elog.\"U_WarnList\" as \"WarnList\",Elog.\"U_msg\" as \"msg\" , ";
                 query += " Elog.\"U_Valid\" as \"valid\",Elog.\"U_UniqID\" as \"UniqID\",Elog.\"U_UniqReqID\" as \"UniqReqID\",Elog.\"U_Id\" as \"ID\", ";
                 query += " Elog.\"U_Vat\" as \"Vat\",Elog.\"U_ErrList\" as \"ErrList\" ,";
-                query += " ROW_NUMBER () OVER (PARTITION BY  COALESCE(IDoc.\"DocNum\",CDoc.\"DocNum\",DDoc.\"DocNum\"),\"U_INVTyp\" ORDER BY TO_TIME(\"U_Gentm\") DESC) AS rowss ";
+                query += " ROW_NUMBER () OVER (PARTITION BY  COALESCE(IDoc.\"DocNum\",CDoc.\"DocNum\",DDoc.\"DocNum\",DPDoc.\"DocNum\"),\"U_INVTyp\" ORDER BY TO_TIME(\"U_Gentm\") DESC) AS rowss ";
 
 
                 query += " FROM \"@EILOG\" ELog ";
                 query += " Left JOIN \"OINV\" IDOC ON ELOG.\"U_DocEntry\" = IDOC.\"DocEntry\" and ELOG.\"U_INVTyp\"='INV' ";
                 query += " Left JOIN \"ORIN\" CDOC ON ELOG.\"U_DocEntry\" = CDOC.\"DocEntry\" and ELOG.\"U_INVTyp\"='CRN' ";
                 query += " Left JOIN \"OINV\" DDOC ON ELOG.\"U_DocEntry\" = DDOC.\"DocEntry\" and ELOG.\"U_INVTyp\"='DBN' ";
+                query += " Left JOIN \"ODPI\" DPDOC ON ELOG.\"U_DocEntry\" = DPDOC.\"DocEntry\" and ELOG.\"U_INVTyp\"='DPI' ";
 
 
                 query += " Left JOIN \"OUSR\" UIDOC ON  UIDOC.USERID =IDOC.\"UserSign\"  ";
                 query += " Left JOIN \"OUSR\" UCDOC ON  UCDOC.USERID =CDOC.\"UserSign\"  ";
                 query += " Left JOIN \"OUSR\" UDDOC ON  UDDOC.USERID =DDOC.\"UserSign\"  ";
+                query += " Left JOIN \"OUSR\" UDPDOC ON  UDPDOC.USERID =DPDOC.\"UserSign\"  ";
 
 
 
@@ -154,6 +157,7 @@ namespace EInvoice.Business_Objects
                     query += " and (";
                     query += " IDOC.\"DocDate\" >= '" + EditText0.Value.ToString() + "'or ";
                     query += " CDOC.\"DocDate\" >= '" + EditText0.Value.ToString() + "'or ";
+                    query += " DPDOC.\"DocDate\" >= '" + EditText0.Value.ToString() + "'or ";
                     query += " DDOC.\"DocDate\" >= '" + EditText0.Value.ToString() + "' ";
                     query += ")";
                 }
@@ -162,6 +166,7 @@ namespace EInvoice.Business_Objects
                     query += " and (";
                     query += " IDOC.\"DocDate\" <= '" + EditText1.Value.ToString() + "'or ";
                     query += " CDOC.\"DocDate\" <= '" + EditText1.Value.ToString() + "'or ";
+                    query += " DPDOC.\"DocDate\" <= '" + EditText1.Value.ToString() + "'or ";
                     query += " DDOC.\"DocDate\" <= '" + EditText1.Value.ToString() + "' ";
                     query += ")";
                 }
@@ -177,6 +182,7 @@ namespace EInvoice.Business_Objects
 
                     query += @" AND( UIDOC.USER_CODE NOT in(" + clsModule.objaddon.objglobalmethods.getSingleValue("SELECT Max(CAST(\"U_ExpctUser\" AS nvarchar)) AS \"ExpctUser\" FROM \"@EICON\" e;") + ") or ";
                     query += @"  UCDOC.USER_CODE NOT in(" + clsModule.objaddon.objglobalmethods.getSingleValue("SELECT Max(CAST(\"U_ExpctUser\" AS nvarchar)) AS \"ExpctUser\" FROM \"@EICON\" e;") + ") or ";
+                    query += @"  UDPDOC.USER_CODE NOT in(" + clsModule.objaddon.objglobalmethods.getSingleValue("SELECT Max(CAST(\"U_ExpctUser\" AS nvarchar)) AS \"ExpctUser\" FROM \"@EICON\" e;") + ") or ";
                     query += @"  UDDOC.USER_CODE NOT in(" + clsModule.objaddon.objglobalmethods.getSingleValue("SELECT Max(CAST(\"U_ExpctUser\" AS nvarchar)) AS \"ExpctUser\" FROM \"@EICON\" e;") + ") ";
                     query += ")";
                 }
@@ -188,6 +194,7 @@ namespace EInvoice.Business_Objects
 
                     query += @" AND( IDOC.""Series""  in(" + "SELECT \"Series\" FROM nnm1 WHERE \"SeriesName\" ='" + series + "' AND \"ObjectCode\"  ='13'" + ") or ";
                     query += @"  CDOC.""Series""  in(" + "SELECT \"Series\" FROM nnm1 WHERE \"SeriesName\" ='" + series + "' AND \"ObjectCode\"  ='14'" + ") or ";
+                    query += @"  DPDOC.""Series""  in(" + "SELECT \"Series\" FROM nnm1 WHERE \"SeriesName\" ='" + series + "' AND \"ObjectCode\"  ='203'" + ") or ";
                     query += @"  DDOC.""Series""  in(" + "SELECT \"Series\" FROM nnm1 WHERE \"SeriesName\" ='" + series + "' AND \"ObjectCode\"  ='13'" + ") ";
                     query += ")";
 
@@ -211,12 +218,15 @@ namespace EInvoice.Business_Objects
 
 
                 query += ")s";
-               
+                if (!CheckBox0.Checked)
+                {
+                    query += " WHERE s.rowss=1 ";
+                }
+
                 query += " ORDER BY s.\"DocEntry\",s.\"IssueDt\",s.\"Issuetm\" ";
                 clsModule.objaddon.objapplication.StatusBar.SetText("Preparing Data..", SAPbouiCOM.BoMessageTime.bmt_Short, SAPbouiCOM.BoStatusBarMessageType.smt_Warning);
 
                 //   dt = clsModule.objaddon.objglobalmethods.GetmultipleValue(query);
-                clsModule.objaddon.objglobalmethods.WriteErrorLog(query);
                 Grid0.DataTable.ExecuteQuery(query);
 
 
@@ -307,6 +317,7 @@ namespace EInvoice.Business_Objects
 
         private SAPbouiCOM.StaticText StaticText2;
         private SAPbouiCOM.ComboBox ComboBox0;
+        private SAPbouiCOM.CheckBox CheckBox0;
     }
 }
 
