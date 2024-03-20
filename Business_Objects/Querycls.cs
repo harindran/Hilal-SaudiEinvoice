@@ -22,13 +22,15 @@ namespace EInvoice.Business_Objects
             retstring = " WITH Tottb AS ( ";
             retstring += " SELECT \"DocEntry\",sum(\"Totgross\") AS \"Totgross\",sum(\"Tottax\") AS \"Tottax\" ,sum(\"Totrndnet\") AS \"Totrndnet\",sum(\"Totnet\") AS \"Totnet\"  from ( ";
             retstring += " SELECT DOC.\"DocEntry\",";
-            retstring += " sum(Round(((itm.\"PriceBefDi\" -(itm.\"PriceBefDi\" *(itm.\"DiscPrcnt\"/100))) * Case when DOC.\"DocType\"='S' then 1 else itm.\"Quantity\" END)," + Round + ")) \"Totgross\",";
+            retstring += " (sum(Round(( Case when DOC.\"DocType\"='S' then  itm.\"Price\" else ( itm.\"INMPrice\") End *  Case when DOC.\"DocType\" = 'S' then 1 else itm.\"Quantity\" END) ," + Round + ")))-MAx(CASE WHEN  DOC.\"DocType\" = 'S' then  DOC.\"DiscSum\" ELSE 0 END)  \"Totgross\",";
             retstring += " sum(Round((itm.\"VatSumSy\")," + Round + ")) AS \"Tottax\", ";
-            retstring += " sum(Round(((itm.\"PriceBefDi\" -(itm.\"PriceBefDi\" *(itm.\"DiscPrcnt\"/100))) * Case when DOC.\"DocType\"='S' then 1 else itm.\"Quantity\" END)," + Round + ")) " +
-                " + round( sum(Round(((itm.\"PriceBefDi\" -(itm.\"PriceBefDi\" *(itm.\"DiscPrcnt\"/100))) * Case when DOC.\"DocType\"='S' then 1 else itm.\"Quantity\" END)," + Round + ") " +
-                " * (tax.\"Rate\" /100))," + Round + ") AS \"Totrndnet\", ";    
-            retstring += " Round(sum(((itm.\"PriceBefDi\" -(itm.\"PriceBefDi\" *(itm.\"DiscPrcnt\"/100))) * Case when DOC.\"DocType\"='S' then 1 else itm.\"Quantity\" END) + " +
-                         " itm.\"VatSumSy\"), "+Round +") AS \"Totnet\" ";
+            retstring += "  sum(Round(( Case when DOC.\"DocType\"='S' then  itm.\"Price\" else (itm.\"PriceBefDi\" -(itm.\"PriceBefDi\" - itm.\"INMPrice\")) End * Case when DOC.\"DocType\"='S' then 1 else itm.\"Quantity\" END)," + Round + "))-  MAx(CASE WHEN  DOC.\"DocType\"='S' then  DOC.\"DiscSum\" ELSE 0 END) ";
+            retstring += " + round((sum(Round((Case when DOC.\"DocType\" = 'S' then  itm.\"Price\" else (itm.\"PriceBefDi\" - (itm.\"PriceBefDi\" - itm.\"INMPrice\")) End * Case when DOC.\"DocType\" = 'S' then 1 else itm.\"Quantity\" END)," + Round + ")) -MAx(CASE WHEN  DOC.\"DocType\" = 'S' then  DOC.\"DiscSum\" ELSE 0 END)) ";
+            retstring += " *(tax.\"Rate\" / 100)," + Round + ")  AS \"Totrndnet\", ";
+            retstring += " Round(sum( ( Case when DOC.\"DocType\"='S' then  itm.\"Price\" else (itm.\"INMPrice\") End * Case when DOC.\"DocType\"='S' then 1 else itm.\"Quantity\" END)  + " +
+                         " itm.\"VatSumSy\"), " + Round + ")-MAx(CASE WHEN  DOC.\"DocType\" = 'S' then  DOC.\"DiscSum\" ELSE 0 END) AS \"Totnet\", ";
+            retstring += " (sum(Round(( Case when DOC.\"DocType\"='S' then  itm.\"Price\" else ( itm.\"INMPrice\") End * Case when DOC.\"DocType\" = 'S' then 1 else itm.\"Quantity\" END) ," + Round + "))) \"TotBefHeadDisc\" ";
+
             retstring += " FROM OINV DOC ";
             retstring += " LEFT JOIN INV1 itm ON itm.\"DocEntry\" =DOC.\"DocEntry\" ";
             retstring += " LEFT JOIN OVTG tax ON tax.\"Code\" = itm.\"VatGroup\" ";
@@ -64,25 +66,23 @@ namespace EInvoice.Business_Objects
             retstring += " case when TaxCat.\"Name\"='-' then '' else TaxCat.\"Name\" end AS \"Reason\",";
             retstring += " case when TaxCat.\"Code\" ='-' then '' else TaxCat.\"Code\" end AS \"Reasoncode\",";
 
-
             retstring += " Round(itm.\"VatSumSy\"," + Round + ") AS \"Taxamt\" , ";
             retstring += " itm.\"PriceBefDi\" AS \"BaseAmt\", ";
-            retstring += " itm.\"PriceBefDi\" *(itm.\"DiscPrcnt\"/100 ) AS \"DiscAmt\" , ";
-            retstring += " itm.\"PriceBefDi\" -cast(itm.\"PriceBefDi\" *(itm.\"DiscPrcnt\"/100) as Decimal(20,6)) as \"PriceAmt\",  ";
+            retstring += " Case when Doc.\"DocType\"='S' then (itm.\"PriceBefDi\"-itm.\"Price\")+ (( Doc.\"DiscSum\"/itm.\"Price\" )* Round(Tottb.\"TotBefHeadDisc\"," + Round + ")) else itm.\"PriceBefDi\" - itm.\"INMPrice\"  End AS \"DiscAmt\" , ";
+            retstring += " itm.\"PriceBefDi\" - Case when Doc.\"DocType\"='S' then  cast ( (itm.\"PriceBefDi\"-itm.\"Price\")+((Doc.\"DiscSum\"/itm.\"Price\")* Round(Tottb.\"TotBefHeadDisc\"," + Round + "))  as Decimal(20,6)) else cast(itm.\"PriceBefDi\" - itm.\"INMPrice\" as Decimal(20,6)) End as \"PriceAmt\",  ";
             retstring += " Case when DOC.\"DocType\"='S' then 1 else itm.\"Quantity\" end as \"Quantity\",";
             retstring += " case when itm.\"UomCode\"='Manual' then 'E48' else itm.\"UomCode\" end as \"UomCode\",  ";
-            retstring += " Round((itm.\"PriceBefDi\" -(itm.\"PriceBefDi\" *(itm.\"DiscPrcnt\"/100))) * Case when DOC.\"DocType\"='S' then 1 else itm.\"Quantity\" END," + Round + ") AS \"Gross\", ";
-            retstring += " Round((itm.\"PriceBefDi\" -(itm.\"PriceBefDi\" *(itm.\"DiscPrcnt\"/100))) * Case when DOC.\"DocType\"='S' then 1 else itm.\"Quantity\" END," + Round + ")+ Round(itm.\"VatSumSy\" ," + Round + ")  AS \"Linenet\" , ";
-            retstring += " Round(itm.\"PriceBefDi\" -(itm.\"PriceBefDi\" * (itm.\"DiscPrcnt\" /100))- Case when DOC.\"DocType\"='S' then itm.\"Price\" else itm.\"INMPrice\" end  ," + Round + ") as \"LineAllow\", ";
-            retstring += " ROUND(Doc.\"DiscSum\"," + Round + ") AS \"Allownace\", ";
-            retstring += " Round(Tottb.\"Totgross\"," + Round + ") as \"Totgross\" ,";            
-            retstring += " Round(Tottb.\"Totgross\"-Doc.\"DiscSum\"," + Round + ") as \"TaxExclusive\", ";
+            retstring += " Round( Case when DOC.\"DocType\"='S' then itm.\"PriceBefDi\" - cast ( (itm.\"PriceBefDi\"-itm.\"Price\")+((Doc.\"DiscSum\"/itm.\"Price\")* Round(Tottb.\"TotBefHeadDisc\"," + Round + "))  as Decimal(20,6)) else (itm.\"INMPrice\") End * Case when DOC.\"DocType\"='S' then 1 else itm.\"Quantity\" END," + Round + ") AS \"Gross\", ";
+            retstring += " Round( Case when DOC.\"DocType\"='S' then itm.\"PriceBefDi\" - cast ( (itm.\"PriceBefDi\"-itm.\"Price\")+((Doc.\"DiscSum\"/itm.\"Price\")* Round(Tottb.\"TotBefHeadDisc\"," + Round + "))  as Decimal(20,6)) else (itm.\"INMPrice\") End * Case when DOC.\"DocType\"='S' then 1 else itm.\"Quantity\" END," + Round + ")+ Round(itm.\"VatSumSy\" ," + Round + ")  AS \"Linenet\" , ";
+            //retstring += " Round(itm.\"PriceBefDi\" -(itm.\"PriceBefDi\" * (itm.\"DiscPrcnt\" /100))- Case when DOC.\"DocType\"='S' then itm.\"Price\" else itm.\"INMPrice\" end  ," + Round + ")*0  as \"LineAllow\", ";
+            retstring += " Round(itm.\"PriceBefDi\" -(itm.\"PriceBefDi\" * (itm.\"DiscPrcnt\" /100))- Case when DOC.\"DocType\"='S' then itm.\"Price\" else itm.\"INMPrice\" end  ," + Round + ")*0  as \"LineAllow\", ";
+            retstring += " ROUND(Doc.\"DiscSum\"," + Round + ")*0  AS \"Allownace\", ";
+            retstring += " Round(Tottb.\"Totgross\"," + Round + ") as \"Totgross\" ,";
+            retstring += " Round(Tottb.\"Totgross\"," + Round + ") as \"TaxExclusive\", ";
+            retstring += " Round(Tottb.\"Tottax\"," + Round + ") as \"Tottax\",Round(Tottb.\"Totrndnet\"+DOC .\"RoundDif\"," + Round + ") as \"Totnet\" , ";
+            retstring += " Round(Tottb.\"Totnet\"+DOC .\"RoundDif\"," + Round + ") as \"Totnet1\" , ";
+            retstring += " (Round(Tottb.\"Totnet\"+DOC .\"RoundDif\"," + Round + ")) - (Round(Tottb.\"Totrndnet\"+DOC .\"RoundDif\"," + Round + ")) as \"Roundtot\" , ";
 
-            retstring += " Round(Tottb.\"Tottax\"," + Round + ") as \"Tottax\",Round(Tottb.\"Totrndnet\"-DOC.\"DiscSum\"+DOC .\"RoundDif\"," + Round + ") as \"Totnet\" , ";
-            retstring += " Round(Tottb.\"Totnet\"-DOC.\"DiscSum\"+DOC .\"RoundDif\"," + Round + ") as \"Totnet1\" , ";
-            retstring += " (Round(Tottb.\"Totnet\"-DOC.\"DiscSum\"+DOC .\"RoundDif\"," + Round + ")) - (Round(Tottb.\"Totrndnet\"-DOC.\"DiscSum\"+DOC .\"RoundDif\"," + Round + ")) as \"Roundtot\" , ";
-
-    
             retstring += " case when DOC.\"DocType\"='S' then '3833' else '' End as \"BaseDoc\", ";//need udf
             retstring += " case when DOC.\"DocType\"='S' then '' else '' End as \"Comments\", ";
             retstring += " case when DOC.\"DocType\"='S' then '1' else '' End as \"Paymeanscode\", ";// justi
@@ -131,13 +131,15 @@ namespace EInvoice.Business_Objects
             retstring = " WITH Tottb AS ( ";
             retstring += " SELECT \"DocEntry\",sum(\"Totgross\") AS \"Totgross\",sum(\"Tottax\") AS \"Tottax\" ,sum(\"Totrndnet\") AS \"Totrndnet\",sum(\"Totnet\") AS \"Totnet\"  from ( ";
             retstring += " SELECT DOC.\"DocEntry\",";
-            retstring += " sum(Round(((itm.\"PriceBefDi\" -(itm.\"PriceBefDi\" *(itm.\"DiscPrcnt\"/100))) * Case when DOC.\"DocType\"='S' then 1 else itm.\"Quantity\" END)," + Round + ")) \"Totgross\",";
+            retstring += " (sum(Round(( Case when DOC.\"DocType\"='S' then  itm.\"Price\" else ( itm.\"INMPrice\") End *  Case when DOC.\"DocType\" = 'S' then 1 else itm.\"Quantity\" END) ," + Round + ")))-MAx(CASE WHEN  DOC.\"DocType\" = 'S' then  DOC.\"DiscSum\" ELSE 0 END)  \"Totgross\",";
             retstring += " sum(Round((itm.\"VatSumSy\")," + Round + ")) AS \"Tottax\", ";
-            retstring += " sum(Round(((itm.\"PriceBefDi\" -(itm.\"PriceBefDi\" *(itm.\"DiscPrcnt\"/100))) * Case when DOC.\"DocType\"='S' then 1 else itm.\"Quantity\" END)," + Round + ")) " +
-                " + round( sum(Round(((itm.\"PriceBefDi\" -(itm.\"PriceBefDi\" *(itm.\"DiscPrcnt\"/100))) * Case when DOC.\"DocType\"='S' then 1 else itm.\"Quantity\" END)," + Round + ") " +
-                " * (tax.\"Rate\" /100))," + Round + ") AS \"Totrndnet\", ";
-            retstring += " Round(sum(((itm.\"PriceBefDi\" -(itm.\"PriceBefDi\" *(itm.\"DiscPrcnt\"/100))) * Case when DOC.\"DocType\"='S' then 1 else itm.\"Quantity\" END) + " +
-                         " itm.\"VatSumSy\"), " + Round + ") AS \"Totnet\" ";
+            retstring += "  sum(Round(( Case when DOC.\"DocType\"='S' then  itm.\"Price\" else (itm.\"PriceBefDi\" -(itm.\"PriceBefDi\" - itm.\"INMPrice\")) End * Case when DOC.\"DocType\"='S' then 1 else itm.\"Quantity\" END)," + Round + "))-  MAx(CASE WHEN  DOC.\"DocType\"='S' then  DOC.\"DiscSum\" ELSE 0 END) ";
+            retstring += " + round((sum(Round((Case when DOC.\"DocType\" = 'S' then  itm.\"Price\" else (itm.\"PriceBefDi\" - (itm.\"PriceBefDi\" - itm.\"INMPrice\")) End * Case when DOC.\"DocType\" = 'S' then 1 else itm.\"Quantity\" END)," + Round + ")) -MAx(CASE WHEN  DOC.\"DocType\" = 'S' then  DOC.\"DiscSum\" ELSE 0 END)) ";
+            retstring += " *(tax.\"Rate\" / 100)," + Round + ")  AS \"Totrndnet\", ";
+            retstring += " Round(sum( ( Case when DOC.\"DocType\"='S' then  itm.\"Price\" else (itm.\"INMPrice\") End * Case when DOC.\"DocType\"='S' then 1 else itm.\"Quantity\" END)  + " +
+                         " itm.\"VatSumSy\"), " + Round + ")-MAx(CASE WHEN  DOC.\"DocType\" = 'S' then  DOC.\"DiscSum\" ELSE 0 END) AS \"Totnet\", ";
+            retstring += " (sum(Round(( Case when DOC.\"DocType\"='S' then  itm.\"Price\" else ( itm.\"INMPrice\") End * Case when DOC.\"DocType\" = 'S' then 1 else itm.\"Quantity\" END) ," + Round + "))) \"TotBefHeadDisc\" ";
+
             retstring += " FROM ORIN DOC  ";
             retstring += " LEFT JOIN RIN1 itm ON itm.\"DocEntry\" =DOC.\"DocEntry\" ";
             retstring += " LEFT JOIN OVTG tax ON tax.\"Code\" = itm.\"VatGroup\" ";
@@ -171,24 +173,22 @@ namespace EInvoice.Business_Objects
             retstring += " case when TaxCat.\"Code\" ='-' then '' else TaxCat.\"Code\" end AS \"Reasoncode\",";
 
 
-
             retstring += " Round(itm.\"VatSumSy\"," + Round + ") AS \"Taxamt\" , ";
             retstring += " itm.\"PriceBefDi\" AS \"BaseAmt\", ";
-            retstring += " itm.\"PriceBefDi\" *(itm.\"DiscPrcnt\"/100 ) AS \"DiscAmt\" , ";
-            retstring += " itm.\"PriceBefDi\" -cast(itm.\"PriceBefDi\" *(itm.\"DiscPrcnt\"/100) as Decimal(20,6)) as \"PriceAmt\",  ";
+            retstring += " Case when Doc.\"DocType\"='S' then (itm.\"PriceBefDi\"-itm.\"Price\")+ (( Doc.\"DiscSum\"/itm.\"Price\" )* Round(Tottb.\"TotBefHeadDisc\"," + Round + ")) else itm.\"PriceBefDi\" - itm.\"INMPrice\"  End AS \"DiscAmt\" , ";
+            retstring += " itm.\"PriceBefDi\" - Case when Doc.\"DocType\"='S' then  cast ( (itm.\"PriceBefDi\"-itm.\"Price\")+((Doc.\"DiscSum\"/itm.\"Price\")* Round(Tottb.\"TotBefHeadDisc\"," + Round + "))  as Decimal(20,6)) else cast(itm.\"PriceBefDi\" - itm.\"INMPrice\" as Decimal(20,6)) End as \"PriceAmt\",  ";
             retstring += " Case when DOC.\"DocType\"='S' then 1 else itm.\"Quantity\" end as \"Quantity\",";
             retstring += " case when itm.\"UomCode\"='Manual' then 'E48' else itm.\"UomCode\" end as \"UomCode\",  ";
-            retstring += " Round((itm.\"PriceBefDi\" -(itm.\"PriceBefDi\" *(itm.\"DiscPrcnt\"/100))) * Case when DOC.\"DocType\"='S' then 1 else itm.\"Quantity\" END," + Round + ") AS \"Gross\", ";
-            retstring += " Round((itm.\"PriceBefDi\" -(itm.\"PriceBefDi\" *(itm.\"DiscPrcnt\"/100))) * Case when DOC.\"DocType\"='S' then 1 else itm.\"Quantity\" END," + Round + ")+ Round(itm.\"VatSumSy\" ," + Round + ")  AS \"Linenet\" , ";
-            retstring += " Round(itm.\"PriceBefDi\" -(itm.\"PriceBefDi\" * (itm.\"DiscPrcnt\" /100))-Case when DOC.\"DocType\"='S' then itm.\"Price\" else itm.\"INMPrice\" end ," + Round + ") as \"LineAllow\", ";
-            retstring += " ROUND(Doc.\"DiscSum\"," + Round + ") AS \"Allownace\", ";
+            retstring += " Round( Case when DOC.\"DocType\"='S' then itm.\"PriceBefDi\" - cast ( (itm.\"PriceBefDi\"-itm.\"Price\")+((Doc.\"DiscSum\"/itm.\"Price\")* Round(Tottb.\"TotBefHeadDisc\"," + Round + "))  as Decimal(20,6)) else (itm.\"INMPrice\") End * Case when DOC.\"DocType\"='S' then 1 else itm.\"Quantity\" END," + Round + ") AS \"Gross\", ";
+            retstring += " Round( Case when DOC.\"DocType\"='S' then itm.\"PriceBefDi\" - cast ( (itm.\"PriceBefDi\"-itm.\"Price\")+((Doc.\"DiscSum\"/itm.\"Price\")* Round(Tottb.\"TotBefHeadDisc\"," + Round + "))  as Decimal(20,6)) else (itm.\"INMPrice\") End * Case when DOC.\"DocType\"='S' then 1 else itm.\"Quantity\" END," + Round + ")+ Round(itm.\"VatSumSy\" ," + Round + ")  AS \"Linenet\" , ";
+            //retstring += " Round(itm.\"PriceBefDi\" -(itm.\"PriceBefDi\" * (itm.\"DiscPrcnt\" /100))- Case when DOC.\"DocType\"='S' then itm.\"Price\" else itm.\"INMPrice\" end  ," + Round + ")*0  as \"LineAllow\", ";
+            retstring += " Round(itm.\"PriceBefDi\" -(itm.\"PriceBefDi\" * (itm.\"DiscPrcnt\" /100))- Case when DOC.\"DocType\"='S' then itm.\"Price\" else itm.\"INMPrice\" end  ," + Round + ")*0  as \"LineAllow\", ";
+            retstring += " ROUND(Doc.\"DiscSum\"," + Round + ")*0  AS \"Allownace\", ";
             retstring += " Round(Tottb.\"Totgross\"," + Round + ") as \"Totgross\" ,";
-            retstring += " Round(Tottb.\"Totgross\"-Doc.\"DiscSum\"," + Round + ") as \"TaxExclusive\", ";
-
-            retstring += " Round(Tottb.\"Tottax\"," + Round + ") as \"Tottax\",Round(Tottb.\"Totrndnet\"-DOC.\"DiscSum\"+DOC .\"RoundDif\"," + Round + ") as \"Totnet\" , ";
-            retstring += " Round(Tottb.\"Totnet\"-DOC.\"DiscSum\"+DOC .\"RoundDif\"," + Round + ") as \"Totnet1\" , ";
-            retstring += " (Round(Tottb.\"Totnet\"-DOC.\"DiscSum\"+DOC .\"RoundDif\"," + Round + ")) - (Round(Tottb.\"Totrndnet\"-DOC.\"DiscSum\"+DOC .\"RoundDif\"," + Round + ")) as \"Roundtot\" , ";
-
+            retstring += " Round(Tottb.\"Totgross\"," + Round + ") as \"TaxExclusive\", ";
+            retstring += " Round(Tottb.\"Tottax\"," + Round + ") as \"Tottax\",Round(Tottb.\"Totrndnet\"+DOC .\"RoundDif\"," + Round + ") as \"Totnet\" , ";
+            retstring += " Round(Tottb.\"Totnet\"+DOC .\"RoundDif\"," + Round + ") as \"Totnet1\" , ";
+            retstring += " (Round(Tottb.\"Totnet\"+DOC .\"RoundDif\"," + Round + ")) - (Round(Tottb.\"Totrndnet\"+DOC .\"RoundDif\"," + Round + ")) as \"Roundtot\" , ";
 
             retstring += " case when DOC.\"DocType\"='S' then '3833' else baseDoc.\"DocNum\" End as \"BaseDoc\", ";//need udf
             retstring += " Doc.\"U_CNRsn\"  as \"Comments\", ";//need udf 
@@ -231,13 +231,15 @@ namespace EInvoice.Business_Objects
             retstring = " WITH Tottb AS ( ";
             retstring += " SELECT \"DocEntry\",sum(\"Totgross\") AS \"Totgross\",sum(\"Tottax\") AS \"Tottax\" ,sum(\"Totrndnet\") AS \"Totrndnet\",sum(\"Totnet\") AS \"Totnet\"  from ( ";
             retstring += " SELECT DOC.\"DocEntry\",";
-            retstring += " sum(Round(((itm.\"PriceBefDi\" -(itm.\"PriceBefDi\" *(itm.\"DiscPrcnt\"/100))) * Case when DOC.\"DocType\"='S' then 1 else itm.\"Quantity\" END)," + Round + ")) \"Totgross\",";
+            retstring += " (sum(Round(( Case when DOC.\"DocType\"='S' then  itm.\"Price\" else ( itm.\"INMPrice\") End *  Case when DOC.\"DocType\" = 'S' then 1 else itm.\"Quantity\" END) ," + Round + ")))-MAx(CASE WHEN  DOC.\"DocType\" = 'S' then  DOC.\"DiscSum\" ELSE 0 END)  \"Totgross\",";
             retstring += " sum(Round((itm.\"VatSumSy\")," + Round + ")) AS \"Tottax\", ";
-            retstring += " sum(Round(((itm.\"PriceBefDi\" -(itm.\"PriceBefDi\" *(itm.\"DiscPrcnt\"/100))) * Case when DOC.\"DocType\"='S' then 1 else itm.\"Quantity\" END)," + Round + ")) " +
-                " + round( sum(Round(((itm.\"PriceBefDi\" -(itm.\"PriceBefDi\" *(itm.\"DiscPrcnt\"/100))) * Case when DOC.\"DocType\"='S' then 1 else itm.\"Quantity\" END)," + Round + ") " +
-                " * (tax.\"Rate\" /100))," + Round + ") AS \"Totrndnet\", ";
-            retstring += " Round(sum(((itm.\"PriceBefDi\" -(itm.\"PriceBefDi\" *(itm.\"DiscPrcnt\"/100))) * Case when DOC.\"DocType\"='S' then 1 else itm.\"Quantity\" END) + " +
-                         " itm.\"VatSumSy\"), " + Round + ") AS \"Totnet\" ";
+            retstring += "  sum(Round(( Case when DOC.\"DocType\"='S' then  itm.\"Price\" else (itm.\"PriceBefDi\" -(itm.\"PriceBefDi\" - itm.\"INMPrice\")) End * Case when DOC.\"DocType\"='S' then 1 else itm.\"Quantity\" END)," + Round + "))-  MAx(CASE WHEN  DOC.\"DocType\"='S' then  DOC.\"DiscSum\" ELSE 0 END) ";
+            retstring += " + round((sum(Round((Case when DOC.\"DocType\" = 'S' then  itm.\"Price\" else (itm.\"PriceBefDi\" - (itm.\"PriceBefDi\" - itm.\"INMPrice\")) End * Case when DOC.\"DocType\" = 'S' then 1 else itm.\"Quantity\" END)," + Round + ")) -MAx(CASE WHEN  DOC.\"DocType\" = 'S' then  DOC.\"DiscSum\" ELSE 0 END)) ";
+            retstring += " *(tax.\"Rate\" / 100)," + Round + ")  AS \"Totrndnet\", ";
+            retstring += " Round(sum( ( Case when DOC.\"DocType\"='S' then  itm.\"Price\" else (itm.\"INMPrice\") End * Case when DOC.\"DocType\"='S' then 1 else itm.\"Quantity\" END)  + " +
+                         " itm.\"VatSumSy\"), " + Round + ")-MAx(CASE WHEN  DOC.\"DocType\" = 'S' then  DOC.\"DiscSum\" ELSE 0 END) AS \"Totnet\", ";
+            retstring += " (sum(Round(( Case when DOC.\"DocType\"='S' then  itm.\"Price\" else ( itm.\"INMPrice\") End * Case when DOC.\"DocType\" = 'S' then 1 else itm.\"Quantity\" END) ," + Round + "))) \"TotBefHeadDisc\" ";
+
             retstring += " FROM ODPI DOC ";
             retstring += " LEFT JOIN DPI1 itm ON itm.\"DocEntry\" =DOC.\"DocEntry\" ";
             retstring += " LEFT JOIN OVTG tax ON tax.\"Code\" = itm.\"VatGroup\" ";
@@ -276,20 +278,20 @@ namespace EInvoice.Business_Objects
 
             retstring += " Round(itm.\"VatSumSy\"," + Round + ") AS \"Taxamt\" , ";
             retstring += " itm.\"PriceBefDi\" AS \"BaseAmt\", ";
-            retstring += " itm.\"PriceBefDi\" *(itm.\"DiscPrcnt\"/100 ) AS \"DiscAmt\" , ";
-            retstring += " itm.\"PriceBefDi\" -cast(itm.\"PriceBefDi\" *(itm.\"DiscPrcnt\"/100) as Decimal(20,6)) as \"PriceAmt\",  ";
+            retstring += " Case when Doc.\"DocType\"='S' then (itm.\"PriceBefDi\"-itm.\"Price\")+ (( Doc.\"DiscSum\"/itm.\"Price\" )* Round(Tottb.\"TotBefHeadDisc\"," + Round + ")) else itm.\"PriceBefDi\" - itm.\"INMPrice\"  End AS \"DiscAmt\" , ";
+            retstring += " itm.\"PriceBefDi\" - Case when Doc.\"DocType\"='S' then  cast ( (itm.\"PriceBefDi\"-itm.\"Price\")+((Doc.\"DiscSum\"/itm.\"Price\")* Round(Tottb.\"TotBefHeadDisc\"," + Round + "))  as Decimal(20,6)) else cast(itm.\"PriceBefDi\" - itm.\"INMPrice\" as Decimal(20,6)) End as \"PriceAmt\",  ";
             retstring += " Case when DOC.\"DocType\"='S' then 1 else itm.\"Quantity\" end as \"Quantity\",";
             retstring += " case when itm.\"UomCode\"='Manual' then 'E48' else itm.\"UomCode\" end as \"UomCode\",  ";
-            retstring += " Round((itm.\"PriceBefDi\" -(itm.\"PriceBefDi\" *(itm.\"DiscPrcnt\"/100))) * Case when DOC.\"DocType\"='S' then 1 else itm.\"Quantity\" END," + Round + ") AS \"Gross\", ";
-            retstring += " Round((itm.\"PriceBefDi\" -(itm.\"PriceBefDi\" *(itm.\"DiscPrcnt\"/100))) * Case when DOC.\"DocType\"='S' then 1 else itm.\"Quantity\" END," + Round + ")+ Round(itm.\"VatSumSy\" ," + Round + ")  AS \"Linenet\" , ";
-            retstring += " Round(itm.\"PriceBefDi\" -(itm.\"PriceBefDi\" * (itm.\"DiscPrcnt\" /100))- Case when DOC.\"DocType\"='S' then itm.\"Price\" else itm.\"INMPrice\" end  ," + Round + ") as \"LineAllow\", ";
-            retstring += " ROUND(Doc.\"DiscSum\"," + Round + ") AS \"Allownace\", ";
+            retstring += " Round( Case when DOC.\"DocType\"='S' then itm.\"PriceBefDi\" - cast ( (itm.\"PriceBefDi\"-itm.\"Price\")+((Doc.\"DiscSum\"/itm.\"Price\")* Round(Tottb.\"TotBefHeadDisc\"," + Round + "))  as Decimal(20,6)) else (itm.\"INMPrice\") End * Case when DOC.\"DocType\"='S' then 1 else itm.\"Quantity\" END," + Round + ") AS \"Gross\", ";
+            retstring += " Round( Case when DOC.\"DocType\"='S' then itm.\"PriceBefDi\" - cast ( (itm.\"PriceBefDi\"-itm.\"Price\")+((Doc.\"DiscSum\"/itm.\"Price\")* Round(Tottb.\"TotBefHeadDisc\"," + Round + "))  as Decimal(20,6)) else (itm.\"INMPrice\") End * Case when DOC.\"DocType\"='S' then 1 else itm.\"Quantity\" END," + Round + ")+ Round(itm.\"VatSumSy\" ," + Round + ")  AS \"Linenet\" , ";
+            //retstring += " Round(itm.\"PriceBefDi\" -(itm.\"PriceBefDi\" * (itm.\"DiscPrcnt\" /100))- Case when DOC.\"DocType\"='S' then itm.\"Price\" else itm.\"INMPrice\" end  ," + Round + ")*0  as \"LineAllow\", ";
+            retstring += " Round(itm.\"PriceBefDi\" -(itm.\"PriceBefDi\" * (itm.\"DiscPrcnt\" /100))- Case when DOC.\"DocType\"='S' then itm.\"Price\" else itm.\"INMPrice\" end  ," + Round + ")*0  as \"LineAllow\", ";
+            retstring += " ROUND(Doc.\"DiscSum\"," + Round + ")*0  AS \"Allownace\", ";
             retstring += " Round(Tottb.\"Totgross\"," + Round + ") as \"Totgross\" ,";
-            retstring += " Round(Tottb.\"Totgross\"-Doc.\"DiscSum\"," + Round + ") as \"TaxExclusive\", ";
-
-            retstring += " Round(Tottb.\"Tottax\"," + Round + ") as \"Tottax\",Round(Tottb.\"Totrndnet\"-DOC.\"DiscSum\"+DOC .\"RoundDif\"," + Round + ") as \"Totnet\" , ";
-            retstring += " Round(Tottb.\"Totnet\"-DOC.\"DiscSum\"+DOC .\"RoundDif\"," + Round + ") as \"Totnet1\" , ";
-            retstring += " (Round(Tottb.\"Totnet\"-DOC.\"DiscSum\"+DOC .\"RoundDif\"," + Round + ")) - (Round(Tottb.\"Totrndnet\"-DOC.\"DiscSum\"+DOC .\"RoundDif\"," + Round + ")) as \"Roundtot\" , ";
+            retstring += " Round(Tottb.\"Totgross\"," + Round + ") as \"TaxExclusive\", ";
+            retstring += " Round(Tottb.\"Tottax\"," + Round + ") as \"Tottax\",Round(Tottb.\"Totrndnet\"+DOC .\"RoundDif\"," + Round + ") as \"Totnet\" , ";
+            retstring += " Round(Tottb.\"Totnet\"+DOC .\"RoundDif\"," + Round + ") as \"Totnet1\" , ";
+            retstring += " (Round(Tottb.\"Totnet\"+DOC .\"RoundDif\"," + Round + ")) - (Round(Tottb.\"Totrndnet\"+DOC .\"RoundDif\"," + Round + ")) as \"Roundtot\" , ";
 
 
             retstring += " case when DOC.\"DocType\"='S' then '' else '' End as \"BaseDoc\", ";//need udf

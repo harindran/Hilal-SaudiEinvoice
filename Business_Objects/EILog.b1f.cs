@@ -75,13 +75,13 @@ namespace EInvoice.Business_Objects
             {
 
                 string series = "";
-                string lstrquery = "SELECT o2.\"U_Prefix\"  FROM OUSR o LEFT JOIN OUBR o2 ON o2.\"Code\" = o.\"Branch\" WHERE o.USER_CODE = '" + clsModule.objaddon.objcompany.UserName + "'  AND o2.\"U_Z_FrgnName\" ='Y'  ";
-                SAPbobsCOM.Recordset rs = clsModule.objaddon.objglobalmethods.GetmultipleRS(lstrquery);
-                if (rs.RecordCount > 0)
-                {
+                //string lstrquery = "SELECT o2.\"U_Prefix\"  FROM OUSR o LEFT JOIN OUBR o2 ON o2.\"Code\" = o.\"Branch\" WHERE o.USER_CODE = '" + clsModule.objaddon.objcompany.UserName + "'  ";
+                //SAPbobsCOM.Recordset rs = clsModule.objaddon.objglobalmethods.GetmultipleRS(lstrquery);
+                //if (rs.RecordCount > 0)
+                //{
 
-                    series = rs.Fields.Item("U_Prefix").Value.ToString();
-                }
+                //    series = rs.Fields.Item("U_Prefix").Value.ToString();
+                //}
 
                 objform.Freeze(true);
 

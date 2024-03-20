@@ -1,0 +1,721 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AddOnRegData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" SlientInstallation="No" SlientUpgrade="No" Partnernmsp="ATPL" SchemaVersion="3.0" Type="" MultipleVersion="false" OnDemand="" OnPremise="" ExtName="SaudiEInvoicingHilalV4.5" ExtVersion="4.5" Contdata="www.altrockstech.com" Partner="Altrocks Tech Pvt Ltd" DBType="Both" ClientType="A">
+  <Validity>
+    <SBOCompatibility>
+      <Version From="100.120.01" To="100.210.08" />
+    </SBOCompatibility>
+  </Validity>
+  <Configuration>
+    <Repository>
+      <Properties />
+    </Repository>
+    <Deployment>
+      <Properties />
+    </Deployment>
+    <Assignment>
+      <Properties />
+    </Assignment>
+  </Configuration>
+  <Addons>
+    <Addon Name="" Group="" ForceFlag="" Visible="" AutoAssign="" SelfUpgrd="">
+      <x86 AddonExe="" AddonSig="">
+        <Installation>
+          <Files />
+        </Installation>
+        <Uninstallation>
+          <Files />
+        </Uninstallation>
+      </x86>
+      <x64 AddonExe="E:\Harindran\Project\Hilal-SaudiEinvoice\bin\x64\Debug\SaudiEInvoicing.exe" AddonSig="">
+        <Installation>
+          <Files>
+            <File FileName="BouncyCastle.Crypto.dll">
+              <Actions />
+            </File>
+            <File FileName="BouncyCastle.Cryptography.dll">
+              <Actions />
+            </File>
+            <File FileName="BouncyCastle.Cryptography.xml">
+              <Actions />
+            </File>
+            <File FileName="CrystalDecisions.CrystalReports.Engine.dll">
+              <Actions />
+            </File>
+            <File FileName="CrystalDecisions.ReportAppServer.DataSetConversion.dll">
+              <Actions />
+            </File>
+            <File FileName="CrystalDecisions.Shared.dll">
+              <Actions />
+            </File>
+            <File FileName="itext.barcodes.dll">
+              <Actions />
+            </File>
+            <File FileName="itext.barcodes.xml">
+              <Actions />
+            </File>
+            <File FileName="itext.bouncy-castle-adapter.dll">
+              <Actions />
+            </File>
+            <File FileName="itext.bouncy-castle-adapter.xml">
+              <Actions />
+            </File>
+            <File FileName="itext.bouncy-castle-connector.dll">
+              <Actions />
+            </File>
+            <File FileName="itext.bouncy-castle-connector.xml">
+              <Actions />
+            </File>
+            <File FileName="itext.commons.dll">
+              <Actions />
+            </File>
+            <File FileName="itext.commons.xml">
+              <Actions />
+            </File>
+            <File FileName="itext.forms.dll">
+              <Actions />
+            </File>
+            <File FileName="itext.forms.xml">
+              <Actions />
+            </File>
+            <File FileName="itext.io.dll">
+              <Actions />
+            </File>
+            <File FileName="itext.io.xml">
+              <Actions />
+            </File>
+            <File FileName="itext.kernel.dll">
+              <Actions />
+            </File>
+            <File FileName="itext.kernel.xml">
+              <Actions />
+            </File>
+            <File FileName="itext.layout.dll">
+              <Actions />
+            </File>
+            <File FileName="itext.layout.xml">
+              <Actions />
+            </File>
+            <File FileName="itext.pdfa.dll">
+              <Actions />
+            </File>
+            <File FileName="itext.pdfa.xml">
+              <Actions />
+            </File>
+            <File FileName="itext.sign.dll">
+              <Actions />
+            </File>
+            <File FileName="itext.sign.xml">
+              <Actions />
+            </File>
+            <File FileName="itext.styledxmlparser.dll">
+              <Actions />
+            </File>
+            <File FileName="itext.styledxmlparser.xml">
+              <Actions />
+            </File>
+            <File FileName="itext.svg.dll">
+              <Actions />
+            </File>
+            <File FileName="itext.svg.xml">
+              <Actions />
+            </File>
+            <File FileName="log4net.dll">
+              <Actions />
+            </File>
+            <File FileName="log4net.xml">
+              <Actions />
+            </File>
+            <File FileName="Microsoft.Bcl.AsyncInterfaces.dll">
+              <Actions />
+            </File>
+            <File FileName="Microsoft.Bcl.AsyncInterfaces.xml">
+              <Actions />
+            </File>
+            <File FileName="Microsoft.Extensions.DependencyInjection.Abstractions.dll">
+              <Actions />
+            </File>
+            <File FileName="Microsoft.Extensions.DependencyInjection.Abstractions.xml">
+              <Actions />
+            </File>
+            <File FileName="Microsoft.Extensions.DependencyInjection.dll">
+              <Actions />
+            </File>
+            <File FileName="Microsoft.Extensions.DependencyInjection.xml">
+              <Actions />
+            </File>
+            <File FileName="Microsoft.Extensions.Logging.Abstractions.dll">
+              <Actions />
+            </File>
+            <File FileName="Microsoft.Extensions.Logging.Abstractions.xml">
+              <Actions />
+            </File>
+            <File FileName="Microsoft.Extensions.Logging.dll">
+              <Actions />
+            </File>
+            <File FileName="Microsoft.Extensions.Logging.xml">
+              <Actions />
+            </File>
+            <File FileName="Microsoft.Extensions.Options.dll">
+              <Actions />
+            </File>
+            <File FileName="Microsoft.Extensions.Options.xml">
+              <Actions />
+            </File>
+            <File FileName="Microsoft.Extensions.Primitives.dll">
+              <Actions />
+            </File>
+            <File FileName="Microsoft.Extensions.Primitives.xml">
+              <Actions />
+            </File>
+            <File FileName="Newtonsoft.Json.dll">
+              <Actions />
+            </File>
+            <File FileName="Newtonsoft.Json.xml">
+              <Actions />
+            </File>
+            <File FileName="SAPBusinessOneSDK.dll">
+              <Actions />
+            </File>
+            <File FileName="SaudiEInvoicing.b1s">
+              <Actions />
+            </File>
+            <File FileName="SaudiEInvoicing.exe">
+              <Actions />
+            </File>
+            <File FileName="SaudiEInvoicing.exe.config">
+              <Actions />
+            </File>
+            <File FileName="SaudiEInvoicing.pdb">
+              <Actions />
+            </File>
+            <File FileName="sRGB_CS_profile.icm">
+              <Actions />
+            </File>
+            <File FileName="System.Buffers.dll">
+              <Actions />
+            </File>
+            <File FileName="System.Buffers.xml">
+              <Actions />
+            </File>
+            <File FileName="System.Diagnostics.DiagnosticSource.dll">
+              <Actions />
+            </File>
+            <File FileName="System.Diagnostics.DiagnosticSource.xml">
+              <Actions />
+            </File>
+            <File FileName="System.Memory.dll">
+              <Actions />
+            </File>
+            <File FileName="System.Memory.xml">
+              <Actions />
+            </File>
+            <File FileName="System.Numerics.Vectors.dll">
+              <Actions />
+            </File>
+            <File FileName="System.Numerics.Vectors.xml">
+              <Actions />
+            </File>
+            <File FileName="System.Runtime.CompilerServices.Unsafe.dll">
+              <Actions />
+            </File>
+            <File FileName="System.Runtime.CompilerServices.Unsafe.xml">
+              <Actions />
+            </File>
+            <File FileName="System.Threading.Tasks.Extensions.dll">
+              <Actions />
+            </File>
+            <File FileName="System.Threading.Tasks.Extensions.xml">
+              <Actions />
+            </File>
+            <File FileName="System.ValueTuple.dll">
+              <Actions />
+            </File>
+            <File FileName="System.ValueTuple.xml">
+              <Actions />
+            </File>
+            <File FileName="cs\CrystalDecisions.CrystalReports.Engine.resources.dll">
+              <Actions />
+            </File>
+            <File FileName="cs\CrystalDecisions.Shared.resources.dll">
+              <Actions />
+            </File>
+            <File FileName="da\CrystalDecisions.CrystalReports.Engine.resources.dll">
+              <Actions />
+            </File>
+            <File FileName="da\CrystalDecisions.Shared.resources.dll">
+              <Actions />
+            </File>
+            <File FileName="de\CrystalDecisions.CrystalReports.Engine.resources.dll">
+              <Actions />
+            </File>
+            <File FileName="de\CrystalDecisions.Shared.resources.dll">
+              <Actions />
+            </File>
+            <File FileName="en\CrystalDecisions.CrystalReports.Engine.resources.dll">
+              <Actions />
+            </File>
+            <File FileName="en\CrystalDecisions.Shared.resources.dll">
+              <Actions />
+            </File>
+            <File FileName="es\CrystalDecisions.CrystalReports.Engine.resources.dll">
+              <Actions />
+            </File>
+            <File FileName="es\CrystalDecisions.Shared.resources.dll">
+              <Actions />
+            </File>
+            <File FileName="fi\CrystalDecisions.CrystalReports.Engine.resources.dll">
+              <Actions />
+            </File>
+            <File FileName="fi\CrystalDecisions.Shared.resources.dll">
+              <Actions />
+            </File>
+            <File FileName="fr\CrystalDecisions.CrystalReports.Engine.resources.dll">
+              <Actions />
+            </File>
+            <File FileName="fr\CrystalDecisions.Shared.resources.dll">
+              <Actions />
+            </File>
+            <File FileName="hu\CrystalDecisions.CrystalReports.Engine.resources.dll">
+              <Actions />
+            </File>
+            <File FileName="hu\CrystalDecisions.Shared.resources.dll">
+              <Actions />
+            </File>
+            <File FileName="it\CrystalDecisions.CrystalReports.Engine.resources.dll">
+              <Actions />
+            </File>
+            <File FileName="it\CrystalDecisions.Shared.resources.dll">
+              <Actions />
+            </File>
+            <File FileName="ja\CrystalDecisions.CrystalReports.Engine.resources.dll">
+              <Actions />
+            </File>
+            <File FileName="ja\CrystalDecisions.Shared.resources.dll">
+              <Actions />
+            </File>
+            <File FileName="ko\CrystalDecisions.CrystalReports.Engine.resources.dll">
+              <Actions />
+            </File>
+            <File FileName="ko\CrystalDecisions.Shared.resources.dll">
+              <Actions />
+            </File>
+            <File FileName="nb-NO\CrystalDecisions.CrystalReports.Engine.resources.dll">
+              <Actions />
+            </File>
+            <File FileName="nb-NO\CrystalDecisions.Shared.resources.dll">
+              <Actions />
+            </File>
+            <File FileName="nl\CrystalDecisions.CrystalReports.Engine.resources.dll">
+              <Actions />
+            </File>
+            <File FileName="nl\CrystalDecisions.Shared.resources.dll">
+              <Actions />
+            </File>
+            <File FileName="pl\CrystalDecisions.CrystalReports.Engine.resources.dll">
+              <Actions />
+            </File>
+            <File FileName="pl\CrystalDecisions.Shared.resources.dll">
+              <Actions />
+            </File>
+            <File FileName="pt\CrystalDecisions.CrystalReports.Engine.resources.dll">
+              <Actions />
+            </File>
+            <File FileName="pt\CrystalDecisions.Shared.resources.dll">
+              <Actions />
+            </File>
+            <File FileName="ru\CrystalDecisions.CrystalReports.Engine.resources.dll">
+              <Actions />
+            </File>
+            <File FileName="ru\CrystalDecisions.Shared.resources.dll">
+              <Actions />
+            </File>
+            <File FileName="sk\CrystalDecisions.CrystalReports.Engine.resources.dll">
+              <Actions />
+            </File>
+            <File FileName="sk\CrystalDecisions.Shared.resources.dll">
+              <Actions />
+            </File>
+            <File FileName="sv\CrystalDecisions.CrystalReports.Engine.resources.dll">
+              <Actions />
+            </File>
+            <File FileName="sv\CrystalDecisions.Shared.resources.dll">
+              <Actions />
+            </File>
+            <File FileName="th\CrystalDecisions.CrystalReports.Engine.resources.dll">
+              <Actions />
+            </File>
+            <File FileName="th\CrystalDecisions.Shared.resources.dll">
+              <Actions />
+            </File>
+            <File FileName="tr\CrystalDecisions.CrystalReports.Engine.resources.dll">
+              <Actions />
+            </File>
+            <File FileName="tr\CrystalDecisions.Shared.resources.dll">
+              <Actions />
+            </File>
+            <File FileName="zh-CHS\CrystalDecisions.CrystalReports.Engine.resources.dll">
+              <Actions />
+            </File>
+            <File FileName="zh-CHS\CrystalDecisions.Shared.resources.dll">
+              <Actions />
+            </File>
+            <File FileName="zh-CHT\CrystalDecisions.CrystalReports.Engine.resources.dll">
+              <Actions />
+            </File>
+            <File FileName="zh-CHT\CrystalDecisions.Shared.resources.dll">
+              <Actions />
+            </File>
+          </Files>
+        </Installation>
+        <Uninstallation>
+          <Files>
+            <File FileName="BouncyCastle.Crypto.dll">
+              <Actions />
+            </File>
+            <File FileName="BouncyCastle.Cryptography.dll">
+              <Actions />
+            </File>
+            <File FileName="BouncyCastle.Cryptography.xml">
+              <Actions />
+            </File>
+            <File FileName="CrystalDecisions.CrystalReports.Engine.dll">
+              <Actions />
+            </File>
+            <File FileName="CrystalDecisions.ReportAppServer.DataSetConversion.dll">
+              <Actions />
+            </File>
+            <File FileName="CrystalDecisions.Shared.dll">
+              <Actions />
+            </File>
+            <File FileName="itext.barcodes.dll">
+              <Actions />
+            </File>
+            <File FileName="itext.barcodes.xml">
+              <Actions />
+            </File>
+            <File FileName="itext.bouncy-castle-adapter.dll">
+              <Actions />
+            </File>
+            <File FileName="itext.bouncy-castle-adapter.xml">
+              <Actions />
+            </File>
+            <File FileName="itext.bouncy-castle-connector.dll">
+              <Actions />
+            </File>
+            <File FileName="itext.bouncy-castle-connector.xml">
+              <Actions />
+            </File>
+            <File FileName="itext.commons.dll">
+              <Actions />
+            </File>
+            <File FileName="itext.commons.xml">
+              <Actions />
+            </File>
+            <File FileName="itext.forms.dll">
+              <Actions />
+            </File>
+            <File FileName="itext.forms.xml">
+              <Actions />
+            </File>
+            <File FileName="itext.io.dll">
+              <Actions />
+            </File>
+            <File FileName="itext.io.xml">
+              <Actions />
+            </File>
+            <File FileName="itext.kernel.dll">
+              <Actions />
+            </File>
+            <File FileName="itext.kernel.xml">
+              <Actions />
+            </File>
+            <File FileName="itext.layout.dll">
+              <Actions />
+            </File>
+            <File FileName="itext.layout.xml">
+              <Actions />
+            </File>
+            <File FileName="itext.pdfa.dll">
+              <Actions />
+            </File>
+            <File FileName="itext.pdfa.xml">
+              <Actions />
+            </File>
+            <File FileName="itext.sign.dll">
+              <Actions />
+            </File>
+            <File FileName="itext.sign.xml">
+              <Actions />
+            </File>
+            <File FileName="itext.styledxmlparser.dll">
+              <Actions />
+            </File>
+            <File FileName="itext.styledxmlparser.xml">
+              <Actions />
+            </File>
+            <File FileName="itext.svg.dll">
+              <Actions />
+            </File>
+            <File FileName="itext.svg.xml">
+              <Actions />
+            </File>
+            <File FileName="log4net.dll">
+              <Actions />
+            </File>
+            <File FileName="log4net.xml">
+              <Actions />
+            </File>
+            <File FileName="Microsoft.Bcl.AsyncInterfaces.dll">
+              <Actions />
+            </File>
+            <File FileName="Microsoft.Bcl.AsyncInterfaces.xml">
+              <Actions />
+            </File>
+            <File FileName="Microsoft.Extensions.DependencyInjection.Abstractions.dll">
+              <Actions />
+            </File>
+            <File FileName="Microsoft.Extensions.DependencyInjection.Abstractions.xml">
+              <Actions />
+            </File>
+            <File FileName="Microsoft.Extensions.DependencyInjection.dll">
+              <Actions />
+            </File>
+            <File FileName="Microsoft.Extensions.DependencyInjection.xml">
+              <Actions />
+            </File>
+            <File FileName="Microsoft.Extensions.Logging.Abstractions.dll">
+              <Actions />
+            </File>
+            <File FileName="Microsoft.Extensions.Logging.Abstractions.xml">
+              <Actions />
+            </File>
+            <File FileName="Microsoft.Extensions.Logging.dll">
+              <Actions />
+            </File>
+            <File FileName="Microsoft.Extensions.Logging.xml">
+              <Actions />
+            </File>
+            <File FileName="Microsoft.Extensions.Options.dll">
+              <Actions />
+            </File>
+            <File FileName="Microsoft.Extensions.Options.xml">
+              <Actions />
+            </File>
+            <File FileName="Microsoft.Extensions.Primitives.dll">
+              <Actions />
+            </File>
+            <File FileName="Microsoft.Extensions.Primitives.xml">
+              <Actions />
+            </File>
+            <File FileName="Newtonsoft.Json.dll">
+              <Actions />
+            </File>
+            <File FileName="Newtonsoft.Json.xml">
+              <Actions />
+            </File>
+            <File FileName="SAPBusinessOneSDK.dll">
+              <Actions />
+            </File>
+            <File FileName="SaudiEInvoicing.b1s">
+              <Actions />
+            </File>
+            <File FileName="SaudiEInvoicing.exe">
+              <Actions />
+            </File>
+            <File FileName="SaudiEInvoicing.exe.config">
+              <Actions />
+            </File>
+            <File FileName="SaudiEInvoicing.pdb">
+              <Actions />
+            </File>
+            <File FileName="sRGB_CS_profile.icm">
+              <Actions />
+            </File>
+            <File FileName="System.Buffers.dll">
+              <Actions />
+            </File>
+            <File FileName="System.Buffers.xml">
+              <Actions />
+            </File>
+            <File FileName="System.Diagnostics.DiagnosticSource.dll">
+              <Actions />
+            </File>
+            <File FileName="System.Diagnostics.DiagnosticSource.xml">
+              <Actions />
+            </File>
+            <File FileName="System.Memory.dll">
+              <Actions />
+            </File>
+            <File FileName="System.Memory.xml">
+              <Actions />
+            </File>
+            <File FileName="System.Numerics.Vectors.dll">
+              <Actions />
+            </File>
+            <File FileName="System.Numerics.Vectors.xml">
+              <Actions />
+            </File>
+            <File FileName="System.Runtime.CompilerServices.Unsafe.dll">
+              <Actions />
+            </File>
+            <File FileName="System.Runtime.CompilerServices.Unsafe.xml">
+              <Actions />
+            </File>
+            <File FileName="System.Threading.Tasks.Extensions.dll">
+              <Actions />
+            </File>
+            <File FileName="System.Threading.Tasks.Extensions.xml">
+              <Actions />
+            </File>
+            <File FileName="System.ValueTuple.dll">
+              <Actions />
+            </File>
+            <File FileName="System.ValueTuple.xml">
+              <Actions />
+            </File>
+            <File FileName="cs\CrystalDecisions.CrystalReports.Engine.resources.dll">
+              <Actions />
+            </File>
+            <File FileName="cs\CrystalDecisions.Shared.resources.dll">
+              <Actions />
+            </File>
+            <File FileName="da\CrystalDecisions.CrystalReports.Engine.resources.dll">
+              <Actions />
+            </File>
+            <File FileName="da\CrystalDecisions.Shared.resources.dll">
+              <Actions />
+            </File>
+            <File FileName="de\CrystalDecisions.CrystalReports.Engine.resources.dll">
+              <Actions />
+            </File>
+            <File FileName="de\CrystalDecisions.Shared.resources.dll">
+              <Actions />
+            </File>
+            <File FileName="en\CrystalDecisions.CrystalReports.Engine.resources.dll">
+              <Actions />
+            </File>
+            <File FileName="en\CrystalDecisions.Shared.resources.dll">
+              <Actions />
+            </File>
+            <File FileName="es\CrystalDecisions.CrystalReports.Engine.resources.dll">
+              <Actions />
+            </File>
+            <File FileName="es\CrystalDecisions.Shared.resources.dll">
+              <Actions />
+            </File>
+            <File FileName="fi\CrystalDecisions.CrystalReports.Engine.resources.dll">
+              <Actions />
+            </File>
+            <File FileName="fi\CrystalDecisions.Shared.resources.dll">
+              <Actions />
+            </File>
+            <File FileName="fr\CrystalDecisions.CrystalReports.Engine.resources.dll">
+              <Actions />
+            </File>
+            <File FileName="fr\CrystalDecisions.Shared.resources.dll">
+              <Actions />
+            </File>
+            <File FileName="hu\CrystalDecisions.CrystalReports.Engine.resources.dll">
+              <Actions />
+            </File>
+            <File FileName="hu\CrystalDecisions.Shared.resources.dll">
+              <Actions />
+            </File>
+            <File FileName="it\CrystalDecisions.CrystalReports.Engine.resources.dll">
+              <Actions />
+            </File>
+            <File FileName="it\CrystalDecisions.Shared.resources.dll">
+              <Actions />
+            </File>
+            <File FileName="ja\CrystalDecisions.CrystalReports.Engine.resources.dll">
+              <Actions />
+            </File>
+            <File FileName="ja\CrystalDecisions.Shared.resources.dll">
+              <Actions />
+            </File>
+            <File FileName="ko\CrystalDecisions.CrystalReports.Engine.resources.dll">
+              <Actions />
+            </File>
+            <File FileName="ko\CrystalDecisions.Shared.resources.dll">
+              <Actions />
+            </File>
+            <File FileName="nb-NO\CrystalDecisions.CrystalReports.Engine.resources.dll">
+              <Actions />
+            </File>
+            <File FileName="nb-NO\CrystalDecisions.Shared.resources.dll">
+              <Actions />
+            </File>
+            <File FileName="nl\CrystalDecisions.CrystalReports.Engine.resources.dll">
+              <Actions />
+            </File>
+            <File FileName="nl\CrystalDecisions.Shared.resources.dll">
+              <Actions />
+            </File>
+            <File FileName="pl\CrystalDecisions.CrystalReports.Engine.resources.dll">
+              <Actions />
+            </File>
+            <File FileName="pl\CrystalDecisions.Shared.resources.dll">
+              <Actions />
+            </File>
+            <File FileName="pt\CrystalDecisions.CrystalReports.Engine.resources.dll">
+              <Actions />
+            </File>
+            <File FileName="pt\CrystalDecisions.Shared.resources.dll">
+              <Actions />
+            </File>
+            <File FileName="ru\CrystalDecisions.CrystalReports.Engine.resources.dll">
+              <Actions />
+            </File>
+            <File FileName="ru\CrystalDecisions.Shared.resources.dll">
+              <Actions />
+            </File>
+            <File FileName="sk\CrystalDecisions.CrystalReports.Engine.resources.dll">
+              <Actions />
+            </File>
+            <File FileName="sk\CrystalDecisions.Shared.resources.dll">
+              <Actions />
+            </File>
+            <File FileName="sv\CrystalDecisions.CrystalReports.Engine.resources.dll">
+              <Actions />
+            </File>
+            <File FileName="sv\CrystalDecisions.Shared.resources.dll">
+              <Actions />
+            </File>
+            <File FileName="th\CrystalDecisions.CrystalReports.Engine.resources.dll">
+              <Actions />
+            </File>
+            <File FileName="th\CrystalDecisions.Shared.resources.dll">
+              <Actions />
+            </File>
+            <File FileName="tr\CrystalDecisions.CrystalReports.Engine.resources.dll">
+              <Actions />
+            </File>
+            <File FileName="tr\CrystalDecisions.Shared.resources.dll">
+              <Actions />
+            </File>
+            <File FileName="zh-CHS\CrystalDecisions.CrystalReports.Engine.resources.dll">
+              <Actions />
+            </File>
+            <File FileName="zh-CHS\CrystalDecisions.Shared.resources.dll">
+              <Actions />
+            </File>
+            <File FileName="zh-CHT\CrystalDecisions.CrystalReports.Engine.resources.dll">
+              <Actions />
+            </File>
+            <File FileName="zh-CHT\CrystalDecisions.Shared.resources.dll">
+              <Actions />
+            </File>
+          </Files>
+        </Uninstallation>
+      </x64>
+    </Addon>
+  </Addons>
+  <XApps>
+    <XApp Name="" Path="" FileName="" />
+  </XApps>
+  <UDQs>
+    <UDQ udqname="">
+      <Hana FileName="" />
+    </UDQ>
+  </UDQs>
+</AddOnRegData>
